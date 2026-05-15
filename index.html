@@ -4,18 +4,858 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Someone Was Here</title>
-    <link rel="stylesheet" href="/src/styles.css" />
-    <script type="importmap">
-      {
-        "imports": {
-          "react": "/src/react.js",
-          "react-dom/client": "/src/react-dom-client.js"
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #000;
+        color: #e8edf3;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-width: 320px;
+        min-height: 100%;
+        margin: 0;
+        background: #000;
+      }
+
+      body {
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        content: "";
+        background:
+          radial-gradient(circle at 15% 0%, rgba(88, 99, 116, 0.16), transparent 23rem),
+          radial-gradient(circle at 90% 18%, rgba(52, 63, 80, 0.14), transparent 25rem),
+          linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+        background-size: auto, auto, 100% 5px;
+        opacity: 0.95;
+      }
+
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page-shell {
+        position: relative;
+        z-index: 1;
+        width: min(1800px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: clamp(1rem, 2vw, 1.6rem) clamp(0.55rem, 1.4vw, 1.25rem) 4rem;
+      }
+
+      .intro {
+        padding: 0.45rem 0.2rem 1rem;
+        text-align: center;
+      }
+
+      .surface-label {
+        margin: 0 0 0.45rem;
+        color: #69737f;
+        font-size: 0.68rem;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: #f6f8fb;
+        font-size: clamp(2.8rem, 6.7vw, 6.9rem);
+        font-weight: 300;
+        letter-spacing: -0.075em;
+        line-height: 0.9;
+        text-shadow: 0 0 38px rgba(196, 209, 226, 0.12);
+      }
+
+      .subtitle {
+        margin: 0.9rem 0 0;
+        color: #a7b0bb;
+        font-size: clamp(1rem, 2vw, 1.35rem);
+      }
+
+      .archive-count {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0.4rem 0 0.5rem;
+        padding: 0.7rem 0.75rem;
+        border: 1px solid rgba(139, 152, 169, 0.14);
+        border-radius: 0.9rem;
+        color: #c0c8d2;
+        background: rgba(255, 255, 255, 0.025);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.035);
+      }
+
+      .archive-count span {
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .archive-count em {
+        color: #6c7683;
+        font-size: 0.76rem;
+        font-style: normal;
+      }
+
+      .avatar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+        gap: 0.32rem;
+        align-items: stretch;
+      }
+
+      .avatar-card {
+        position: relative;
+        display: grid;
+        min-width: 0;
+        min-height: 8.3rem;
+        align-content: start;
+        justify-items: center;
+        padding: 0.62rem 0.3rem 0.45rem;
+        border: 1px solid rgba(124, 136, 153, 0.08);
+        border-radius: 0.82rem;
+        color: #b5bec9;
+        background: rgba(255, 255, 255, 0.018);
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(7px);
+        animation: cardFadeIn 900ms ease forwards;
+        transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+      }
+
+      .avatar-card:hover,
+      .avatar-card:focus-visible {
+        z-index: 5;
+        border-color: rgba(187, 199, 214, 0.34);
+        background: rgba(116, 127, 143, 0.1);
+        box-shadow: 0 0 0 1px rgba(202, 214, 230, 0.08), 0 0 28px rgba(142, 158, 181, 0.22);
+        outline: none;
+        transform: translateY(-2px);
+      }
+
+      .avatar {
+        display: grid;
+        width: 3rem;
+        height: 3rem;
+        place-items: center;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+        border: 1px solid rgba(211, 218, 228, 0.13);
+        border-radius: 50%;
+        background:
+          linear-gradient(145deg, rgba(176, 183, 193, 0.26), rgba(61, 68, 78, 0.24)),
+          #262a31;
+        box-shadow: inset 0 0 22px rgba(255, 255, 255, 0.04), 0 0 0 3px rgba(255, 255, 255, 0.012);
+      }
+
+      .avatar.large {
+        width: 7rem;
+        height: 7rem;
+        flex: 0 0 auto;
+        margin: 0;
+        box-shadow: inset 0 0 32px rgba(255, 255, 255, 0.05), 0 0 0 8px rgba(255, 255, 255, 0.018);
+      }
+
+      .avatar svg {
+        width: 78%;
+        fill: rgba(229, 234, 241, 0.68);
+      }
+
+      .avatar svg path {
+        fill: none;
+        stroke: rgba(229, 234, 241, 0.68);
+        stroke-width: 7;
+        stroke-linecap: round;
+      }
+
+      .avatar.blank {
+        background: #111419;
+      }
+
+      .avatar.blank::after {
+        width: 40%;
+        height: 40%;
+        border: 1px dashed rgba(202, 211, 223, 0.2);
+        border-radius: 50%;
+        content: "";
+      }
+
+      .avatar.icon {
+        background: radial-gradient(circle at 30% 24%, #9aa5b5, #445064 52%, #171c25 100%);
+      }
+
+      .avatar.icon::after {
+        width: 42%;
+        height: 42%;
+        border-radius: 38% 62% 44% 56%;
+        background: rgba(239, 242, 247, 0.62);
+        filter: blur(0.3px);
+        content: "";
+      }
+
+      .card-user,
+      .card-status,
+      .card-trace {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .card-user {
+        color: #d6dce4;
+        font-size: 0.68rem;
+        letter-spacing: -0.055em;
+      }
+
+      .card-status {
+        margin-top: 0.24rem;
+        color: #788391;
+        font-size: 0.61rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card-trace {
+        width: 100%;
+        margin-top: 0.28rem;
+        color: #586472;
+        font-size: 0.58rem;
+        letter-spacing: -0.035em;
+      }
+
+      .erased {
+        text-decoration: line-through;
+        text-decoration-color: rgba(169, 178, 190, 0.72);
+        filter: blur(0.28px);
+        opacity: 0.74;
+      }
+
+      .load-more-row {
+        display: flex;
+        justify-content: center;
+        padding: 1.4rem 0 0;
+      }
+
+      .load-more {
+        min-width: 12rem;
+        padding: 0.85rem 1.2rem;
+        border: 1px solid rgba(167, 181, 200, 0.2);
+        border-radius: 999px;
+        color: #c8d0da;
+        background: rgba(255, 255, 255, 0.04);
+        cursor: pointer;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .load-more:hover,
+      .load-more:focus-visible {
+        border-color: rgba(203, 214, 228, 0.36);
+        box-shadow: 0 0 30px rgba(142, 158, 181, 0.18);
+        outline: none;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.78);
+        backdrop-filter: blur(10px);
+      }
+
+      .modal-backdrop[hidden] {
+        display: none;
+      }
+
+      .profile-panel {
+        position: relative;
+        width: min(760px, 100%);
+        max-height: min(90vh, 900px);
+        overflow: auto;
+        border: 1px solid rgba(157, 172, 192, 0.22);
+        border-radius: 1.4rem;
+        background: linear-gradient(180deg, rgba(17, 20, 26, 0.99), rgba(3, 4, 6, 0.99));
+        box-shadow: 0 34px 100px rgba(0, 0, 0, 0.7);
+      }
+
+      .close-button {
+        position: absolute;
+        top: 0.9rem;
+        right: 1rem;
+        z-index: 3;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 50%;
+        color: #b7c0cc;
+        background: rgba(0, 0, 0, 0.55);
+        cursor: pointer;
+      }
+
+      .blank-banner {
+        display: flex;
+        height: 8.4rem;
+        align-items: end;
+        padding: 1rem 1.35rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        color: #596472;
+        background:
+          linear-gradient(90deg, transparent 0 12%, rgba(255, 255, 255, 0.045) 12% 12.25%, transparent 12.25% 100%),
+          radial-gradient(circle at 74% 28%, rgba(96, 112, 136, 0.22), transparent 15rem),
+          #0b0e13;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.7rem;
+      }
+
+      .profile-header {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        padding: 0 1.35rem 1.2rem;
+        margin-top: -2.4rem;
+      }
+
+      .eyebrow {
+        margin: 0 0 0.4rem;
+        color: #7b8592;
+        font-size: 0.68rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      .profile-header h2 {
+        max-width: 28rem;
+        margin: 0;
+        overflow: hidden;
+        color: #edf1f5;
+        font-size: clamp(1.4rem, 4vw, 2.1rem);
+        font-weight: 400;
+        letter-spacing: -0.05em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .profile-number {
+        margin: 0.35rem 0 0;
+        color: #7a8491;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.75rem;
+      }
+
+      .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.65rem;
+        padding: 0 1.35rem 1rem;
+      }
+
+      .profile-stats div {
+        display: grid;
+        gap: 0.24rem;
+        padding: 0.8rem 0.7rem;
+        border: 1px solid rgba(255, 255, 255, 0.065);
+        border-radius: 0.9rem;
+        background: rgba(255, 255, 255, 0.025);
+      }
+
+      .profile-stats span {
+        color: #e1e6ed;
+        font-size: 1.2rem;
+      }
+
+      .profile-stats small {
+        color: #687482;
+        font-size: 0.66rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .warning-row {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        align-items: center;
+        margin: 0 1.35rem 1rem;
+        padding: 0.95rem 1rem;
+        border: 1px solid rgba(174, 74, 74, 0.28);
+        border-radius: 1rem;
+        background: rgba(78, 16, 16, 0.18);
+      }
+
+      .warning-row strong {
+        display: grid;
+        width: 2.1rem;
+        height: 2.1rem;
+        place-items: center;
+        border: 1px solid rgba(232, 96, 96, 0.42);
+        border-radius: 50%;
+        color: #ff7777;
+        font-size: 1.1rem;
+      }
+
+      .warning-row p {
+        margin: 0;
+        color: #c9b7b7;
+      }
+
+      .trace-field {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(2rem, 1fr));
+        gap: 0.5rem;
+        padding: 0 1.35rem 1rem;
+      }
+
+      .trace-point {
+        position: relative;
+        display: grid;
+        min-height: 2.5rem;
+        place-items: center;
+        border: 1px dashed rgba(161, 175, 194, 0.18);
+        border-radius: 999px;
+        outline: none;
+      }
+
+      .trace-point::before {
+        width: 0.34rem;
+        height: 0.34rem;
+        border-radius: 50%;
+        background: #818d9d;
+        opacity: 0.55;
+        content: "";
+      }
+
+      .trace-copy {
+        position: absolute;
+        bottom: 130%;
+        left: 50%;
+        z-index: 5;
+        width: max-content;
+        max-width: min(18rem, 78vw);
+        padding: 0.45rem 0.58rem;
+        border: 1px solid rgba(186, 200, 218, 0.17);
+        border-radius: 0.62rem;
+        color: #e6ebf1;
+        background: rgba(4, 5, 7, 0.96);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.7rem;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, 0.35rem);
+      }
+
+      .trace-point:hover .trace-copy,
+      .trace-point:focus .trace-copy {
+        animation: traceBrief 1.8s ease both;
+      }
+
+      .garbled-area {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+        padding: 0 1.35rem 1rem;
+      }
+
+      .garbled-area p {
+        margin: 0;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.055);
+        border-radius: 0.75rem;
+        color: #747f8e;
+        background: rgba(255, 255, 255, 0.018);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.7rem;
+      }
+
+      .missing-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.7rem;
+        padding: 0 1.35rem 1.35rem;
+      }
+
+      .broken-block {
+        display: grid;
+        grid-template-columns: 4.5rem 1fr;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 0.95rem;
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .broken-block.wide {
+        grid-column: 1 / -1;
+      }
+
+      .broken-image {
+        display: grid;
+        min-height: 3.8rem;
+        place-items: center;
+        border-radius: 0.7rem;
+        background:
+          linear-gradient(135deg, transparent 49%, rgba(175, 187, 202, 0.2) 50%, transparent 51%),
+          rgba(80, 90, 106, 0.14);
+      }
+
+      .broken-image::after {
+        width: 1.25rem;
+        height: 1.25rem;
+        border: 1px solid rgba(204, 214, 227, 0.2);
+        border-radius: 0.24rem;
+        content: "";
+      }
+
+      .missing-lines {
+        display: grid;
+        align-content: center;
+        gap: 0.5rem;
+      }
+
+      .missing-lines i {
+        display: block;
+        height: 0.5rem;
+        border-radius: 999px;
+        background: rgba(156, 169, 187, 0.12);
+      }
+
+      .missing-lines i:nth-child(2) {
+        width: 62%;
+      }
+
+      .missing-lines small {
+        color: #6f7a88;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.66rem;
+      }
+
+      @keyframes cardFadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
-    </script>
+
+      @keyframes traceBrief {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, 0.35rem);
+        }
+        18%,
+        58% {
+          opacity: 0.94;
+          transform: translate(-50%, 0);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -0.12rem);
+        }
+      }
+
+      @media (max-width: 760px) {
+        .avatar-grid {
+          grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+          gap: 0.25rem;
+        }
+
+        .avatar-card {
+          min-height: 7.5rem;
+        }
+
+        .archive-count {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .profile-header {
+          align-items: center;
+        }
+
+        .trace-field {
+          grid-template-columns: repeat(4, minmax(2rem, 1fr));
+        }
+
+        .garbled-area,
+        .missing-grid,
+        .profile-stats {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-shell {
+          padding-inline: 0.35rem;
+        }
+
+        .avatar-grid {
+          grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+        }
+
+        .avatar-card {
+          min-height: 7rem;
+          padding-inline: 0.2rem;
+        }
+
+        .avatar {
+          width: 2.55rem;
+          height: 2.55rem;
+        }
+
+        .avatar.large {
+          width: 5.5rem;
+          height: 5.5rem;
+        }
+
+        .profile-header,
+        .profile-stats,
+        .warning-row,
+        .trace-field,
+        .garbled-area,
+        .missing-grid {
+          margin-inline: 0;
+          padding-inline: 1rem;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.js"></script>
+    <main class="page-shell">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="surface-label">fictional unavailable account archive</p>
+        <h1 id="page-title">Someone was here.</h1>
+        <p class="subtitle">This account is no longer available.</p>
+      </section>
+
+      <section class="archive-count" aria-live="polite">
+        <span>1000 unavailable accounts</span>
+        <em id="visible-count">120 currently visible</em>
+      </section>
+
+      <section class="avatar-grid" id="avatar-grid" aria-label="Unavailable account avatar grid"></section>
+
+      <div class="load-more-row">
+        <button class="load-more" id="load-more" type="button">load more traces</button>
+      </div>
+    </main>
+
+    <div class="modal-backdrop" id="modal" hidden>
+      <aside class="profile-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="close-button" id="close-modal" type="button" aria-label="Close incomplete profile">×</button>
+        <div id="modal-content"></div>
+      </aside>
+    </div>
+
+    <script>
+      const ACCOUNT_COUNT = 1000;
+      const INITIAL_VISIBLE = 120;
+      const LOAD_STEP = 120;
+
+      const banReasons = [
+        'violated platform rules',
+        'reported by multiple users',
+        'content temporarily unavailable',
+        'identity verification failed',
+        'account exists at risk',
+        'profile reset by system',
+        'content removed according to regulations',
+        'user not found',
+        'account unavailable',
+      ];
+
+      const statuses = ['unavailable', 'banned', 'hidden', 'reset'];
+      const avatarTypes = ['silhouette', 'blank', 'icon', 'silhouette', 'blank', 'icon'];
+      const traces = [
+        'last active 247 days ago',
+        'signature removed',
+        'one comment remains',
+        'profile image failed to load',
+        '3 posts hidden',
+        'follow relation remains',
+      ];
+      const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
+
+      const grid = document.getElementById('avatar-grid');
+      const visibleCount = document.getElementById('visible-count');
+      const loadMoreButton = document.getElementById('load-more');
+      const modal = document.getElementById('modal');
+      const modalContent = document.getElementById('modal-content');
+      const closeModalButton = document.getElementById('close-modal');
+      let visible = INITIAL_VISIBLE;
+      let lastFocusedCard = null;
+
+      function seededRandom(seed) {
+        const x = Math.sin(seed * 999.91) * 10000;
+        return x - Math.floor(x);
+      }
+
+      function randomInt(seed, min, max) {
+        return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
+      }
+
+      function buildAccounts() {
+        return Array.from({ length: ACCOUNT_COUNT }, (_, index) => {
+          const id = String(randomInt(index + 11, 1000000000, 9999999999));
+          return {
+            id,
+            userName: `User_${id}`,
+            avatar: avatarTypes[index % avatarTypes.length],
+            followers: randomInt(index + 31, 0, 98000),
+            following: randomInt(index + 47, 0, 1200),
+            likes: randomInt(index + 63, 0, 240000),
+            lastActive: randomInt(index + 79, 4, 1300),
+            hiddenPosts: randomInt(index + 95, 0, 47),
+            banReason: banReasons[index % banReasons.length],
+            status: statuses[index % statuses.length],
+            trace: traces[index % traces.length],
+            damaged: index % 6 === 0 || index % 19 === 0,
+          };
+        });
+      }
+
+      const accounts = buildAccounts();
+
+      function avatarMarkup(type, large = false) {
+        const classes = ['avatar', type, large ? 'large' : ''].filter(Boolean).join(' ');
+        const silhouette = `
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <circle cx="40" cy="29" r="13"></circle>
+            <path d="M17 68c3.5-16 14.5-25 23-25s19.5 9 23 25"></path>
+          </svg>`;
+        return `<div class="${classes}" aria-hidden="true">${type === 'silhouette' ? silhouette : ''}</div>`;
+      }
+
+      function cardMarkup(account, index) {
+        const erased = account.damaged ? 'erased' : '';
+        return `
+          <button class="avatar-card" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open incomplete profile for ${account.userName}">
+            ${avatarMarkup(account.avatar)}
+            <span class="card-user ${erased}">${account.userName}</span>
+            <span class="card-status">${account.status}</span>
+            <span class="card-trace">${account.trace}</span>
+          </button>`;
+      }
+
+      function renderGrid() {
+        grid.innerHTML = accounts.slice(0, visible).map(cardMarkup).join('');
+        visibleCount.textContent = `${visible} currently visible`;
+        loadMoreButton.hidden = visible >= accounts.length;
+      }
+
+      function brokenBlock(label, wide = false) {
+        return `
+          <div class="broken-block ${wide ? 'wide' : ''}">
+            <div class="broken-image" aria-hidden="true"></div>
+            <div class="missing-lines">
+              <i></i>
+              <i></i>
+              <small>${label}</small>
+            </div>
+          </div>`;
+      }
+
+      function tracePoint(text) {
+        return `<span class="trace-point" tabindex="0"><span class="trace-copy">${text}</span></span>`;
+      }
+
+      function openModal(account, trigger) {
+        lastFocusedCard = trigger;
+        const profileTraceTexts = [
+          `last active ${account.lastActive} days ago`,
+          'signature removed',
+          'one comment remains',
+          'profile image failed to load',
+          `${account.hiddenPosts || 3} posts hidden`,
+          'follow relation remains',
+        ];
+
+        modalContent.innerHTML = `
+          <div class="blank-banner"><span>banner unavailable</span></div>
+          <header class="profile-header">
+            ${avatarMarkup(account.avatar, true)}
+            <div>
+              <p class="eyebrow">Incomplete Profile</p>
+              <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">${account.userName}</h2>
+              <p class="profile-number">random user number: ${account.id}</p>
+            </div>
+          </header>
+          <section class="profile-stats" aria-label="Unavailable profile counts">
+            <div><span>${account.followers.toLocaleString()}</span><small>followers</small></div>
+            <div><span>${account.following.toLocaleString()}</span><small>following</small></div>
+            <div><span>${account.likes.toLocaleString()}</span><small>likes</small></div>
+          </section>
+          <section class="warning-row">
+            <strong aria-hidden="true">!</strong>
+            <p>${account.banReason}</p>
+          </section>
+          <section class="trace-field" aria-label="hover areas with temporary traces">
+            ${profileTraceTexts.map(tracePoint).join('')}
+          </section>
+          <section class="garbled-area" aria-label="damaged account text">
+            ${garbledLines.map((line) => `<p>${line}</p>`).join('')}
+          </section>
+          <section class="missing-grid" aria-label="missing profile contents">
+            ${brokenBlock('profile image failed to load')}
+            ${brokenBlock('grey missing content block')}
+            ${brokenBlock('deleted signature')}
+            ${brokenBlock(`${account.hiddenPosts} hidden posts`)}
+            ${brokenBlock('content deleted', true)}
+          </section>`;
+
+        modal.hidden = false;
+        document.body.classList.add('modal-open');
+        closeModalButton.focus();
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove('modal-open');
+        if (lastFocusedCard) lastFocusedCard.focus();
+      }
+
+      grid.addEventListener('click', (event) => {
+        const card = event.target.closest('.avatar-card');
+        if (!card) return;
+        openModal(accounts[Number(card.dataset.index)], card);
+      });
+
+      loadMoreButton.addEventListener('click', () => {
+        visible = Math.min(visible + LOAD_STEP, accounts.length);
+        renderGrid();
+      });
+
+      closeModalButton.addEventListener('click', closeModal);
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeModal();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+      });
+
+      renderGrid();
+    </script>
   </body>
 </html>
