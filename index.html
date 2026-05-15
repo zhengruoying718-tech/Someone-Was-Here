@@ -117,7 +117,7 @@
 
       .avatar-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
         gap: 0.55rem;
         align-items: stretch;
       }
@@ -126,7 +126,7 @@
         position: relative;
         display: grid;
         min-width: 0;
-        min-height: 9.1rem;
+        min-height: 13.6rem;
         align-content: start;
         justify-items: center;
         padding: 0.85rem 0.45rem 0.7rem;
@@ -161,8 +161,8 @@
       .avatar {
         position: relative;
         display: grid;
-        width: 3.2rem;
-        height: 3.2rem;
+        width: 5.15rem;
+        height: 5.15rem;
         place-items: center;
         overflow: hidden;
         margin-bottom: 0.62rem;
@@ -173,8 +173,8 @@
       }
 
       .avatar.large {
-        width: 7.2rem;
-        height: 7.2rem;
+        width: 9.4rem;
+        height: 9.4rem;
         flex: 0 0 auto;
         margin: 0;
         border: 5px solid #eeeae1;
@@ -240,6 +240,77 @@
 
       .avatar.icon {
         background: #777874;
+      }
+
+
+      .avatar.failed,
+      .avatar.partial,
+      .avatar.cached,
+      .avatar.old,
+      .avatar.double,
+      .avatar.half,
+      .avatar.ghost {
+        background: #5f605d;
+      }
+
+      .avatar.failed::before,
+      .avatar.partial::before {
+        width: 54%;
+        height: 40%;
+        border: 1px solid rgba(244, 242, 236, 0.58);
+        border-radius: 0.16rem;
+        content: "";
+      }
+
+      .avatar.failed::after {
+        position: absolute;
+        width: 3.2rem;
+        height: 1px;
+        background: rgba(244, 242, 236, 0.58);
+        content: "";
+        transform: rotate(-38deg);
+      }
+
+      .avatar.partial::after {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, rgba(238, 232, 220, 0.28), transparent 48%);
+        content: "";
+      }
+
+      .avatar.cached::after,
+      .avatar.old::after {
+        color: rgba(244, 242, 236, 0.72);
+        content: "xiao_";
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.62rem;
+      }
+
+      .avatar.double::before,
+      .avatar.ghost::before {
+        position: absolute;
+        width: 48%;
+        height: 48%;
+        border-radius: 50%;
+        background: rgba(244, 242, 236, 0.38);
+        content: "";
+        transform: translate(-0.28rem, -0.12rem);
+      }
+
+      .avatar.double::after,
+      .avatar.ghost::after,
+      .avatar.half::after {
+        position: absolute;
+        width: 48%;
+        height: 48%;
+        border-radius: 50%;
+        background: rgba(244, 242, 236, 0.3);
+        content: "";
+        transform: translate(0.28rem, 0.14rem);
+      }
+
+      .avatar.half {
+        opacity: 0.58;
       }
 
       .avatar.icon::after {
@@ -670,6 +741,35 @@
         font-size: 0.68rem;
       }
 
+
+
+      .report-history {
+        margin: 0 1.35rem 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.45rem;
+        background: #f3eee5;
+      }
+
+      .report-history h3 {
+        margin: 0 0 0.7rem;
+        color: #7d5c56;
+        font-size: 0.78rem;
+        font-weight: 520;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .report-history ul {
+        display: grid;
+        gap: 0.42rem;
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #6b665f;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.68rem;
+      }
+
       .trace-field {
         display: grid;
         grid-template-columns: repeat(6, minmax(2rem, 1fr));
@@ -915,7 +1015,7 @@
 
       @media (max-width: 760px) {
         .avatar-grid {
-          grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
         }
 
         .archive-count {
@@ -948,7 +1048,7 @@
         }
 
         .avatar-grid {
-          grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
           gap: 0.35rem;
         }
 
@@ -958,13 +1058,13 @@
         }
 
         .avatar {
-          width: 2.7rem;
-          height: 2.7rem;
+          width: 4.3rem;
+          height: 4.3rem;
         }
 
         .avatar.large {
-          width: 5.8rem;
-          height: 5.8rem;
+          width: 7.4rem;
+          height: 7.4rem;
         }
 
         .profile-header,
@@ -991,8 +1091,8 @@
       </section>
 
       <section class="archive-count" aria-live="polite">
-        <span>1000 partial surface traces</span>
-        <em id="visible-count">120 currently visible</em>
+        <span>100 traces on a shared surface</span>
+        <em id="visible-count">100 currently visible</em>
       </section>
 
       <section class="avatar-grid" id="avatar-grid" aria-label="Unavailable account avatar grid"></section>
@@ -1010,21 +1110,24 @@
     </div>
 
     <script>
-      const ACCOUNT_COUNT = 1000;
-      const INITIAL_VISIBLE = 120;
-      const LOAD_STEP = 120;
+      const ACCOUNT_COUNT = 100;
+      const INITIAL_VISIBLE = 100;
+      const LOAD_STEP = 100;
 
       const ambiguousReasons = [
-        'content cannot be reconstructed from the remaining surface',
-        'removed after reports',
-        'restricted after repeated activity',
-        'account reset following abnormal behaviour',
+        'content unavailable under community guidelines',
+        'removed after repeated reports',
+        'restricted following abnormal activity',
         'previous posts cannot be reconstructed',
-        'traces remain in cached relations',
+        'cached relations remain',
+        'content visibility limited',
+        'historical activity archived',
+        'interaction history partially retained',
+        'surface activity no longer accessible',
       ];
 
       const statuses = ['silent', 'reset', 'hidden', 'cached', 'unreadable'];
-      const avatarTypes = ['silhouette', 'blank', 'reset', 'broken', 'silhouette', 'blank', 'icon'];
+      const avatarTypes = ['silhouette', 'blank', 'failed', 'partial', 'cached', 'old', 'double', 'half', 'ghost', 'broken', 'reset', 'icon'];
       const pastActions = [
         'replied to a deleted post',
         'changed avatar',
@@ -1061,11 +1164,12 @@
         'the post is gone, but the relation remains',
       ];
       const sharedSurfaceTraces = [
-        '3 users still follow this silent profile',
+        '3 users still follow this unavailable account',
         'one reply remains but the original post is gone',
         'saved by 42 users',
         'mentioned in another deleted profile',
         'appears in 12 broken links',
+        'linked from removed content',
       ];
       const strongResidues = [
         ['old name: 小…', 'reply: 我只是…', 'old signature: 不…', 'image failed'],
@@ -1081,6 +1185,22 @@
         "please don't…",
         'image loaded once',
         'saved by 42',
+      ];
+      const communityReports = [
+        'reported by 23 users',
+        'multiple users marked content disturbing',
+        'reported repeatedly within 48 hours',
+        'users requested removal',
+        'community moderation triggered',
+        'reported as misleading',
+        'hidden following user complaints',
+        'interaction received unusual reports',
+      ];
+      const laterViewerTraces = [
+        '247 users viewed after removal',
+        '13 users opened remaining traces',
+        '4 users saved fragments',
+        'someone searched this account yesterday',
       ];
       const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
 
@@ -1102,18 +1222,29 @@
         return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
       }
 
-      function pickTraceLevel(index) {
-        if (index % 50 === 13) return 3;
-        const value = seededRandom(index + 301);
-        if (value < 0.7) return 0;
-        if (value < 0.9) return 1;
-        return 2;
+      function buildTraceLevels() {
+        const levels = Array(ACCOUNT_COUNT).fill(0);
+        const rankedIndexes = Array.from({ length: ACCOUNT_COUNT }, (_, index) => index)
+          .sort((a, b) => seededRandom(a + 707) - seededRandom(b + 707));
+        rankedIndexes.slice(60, 85).forEach((index) => { levels[index] = 1; });
+        rankedIndexes.slice(85, 95).forEach((index) => { levels[index] = 2; });
+        rankedIndexes.slice(95, 100).forEach((index) => { levels[index] = 3; });
+        return levels;
+      }
+
+      const traceLevels = buildTraceLevels();
+
+      function tracePercentForLevel(level, index) {
+        if (level === 0) return randomInt(index + 127, 2, 6);
+        if (level === 1) return randomInt(index + 127, 16, 29);
+        if (level === 2) return randomInt(index + 127, 45, 62);
+        return randomInt(index + 127, 84, 94);
       }
 
       function buildAccounts() {
         return Array.from({ length: ACCOUNT_COUNT }, (_, index) => {
           const userId = String(randomInt(index + 11, 1000000000, 9999999999));
-          const traceLevel = pickTraceLevel(index);
+          const traceLevel = traceLevels[index];
           const followers = randomInt(index + 31, 0, 98000);
           const following = randomInt(index + 47, 0, 1200);
           const likes = randomInt(index + 63, 0, 240000);
@@ -1127,12 +1258,14 @@
             lastActive: randomInt(index + 79, 4, 1300),
             hiddenPosts,
             traceLevel,
-            tracePercent: randomInt(index + 127, 3, 89),
+            tracePercent: tracePercentForLevel(traceLevel, index),
             pastAction: pastActions[index % pastActions.length],
             remainingTrace: remainingTraces[index % remainingTraces.length],
             ambiguousReason: ambiguousReasons[index % ambiguousReasons.length],
             sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
             sharedTraces: Array.from({ length: 4 }, (_, offset) => sharedSurfaceTraces[(index + offset) % sharedSurfaceTraces.length]),
+            reportTraces: Array.from({ length: 3 }, (_, offset) => communityReports[(index + offset) % communityReports.length]),
+            laterTraces: Array.from({ length: 4 }, (_, offset) => laterViewerTraces[(index + offset) % laterViewerTraces.length]),
             strongResidues: strongResidues[index % strongResidues.length],
             memoryFlash: memoryFlashes[index % memoryFlashes.length],
             avatar: avatarTypes[index % avatarTypes.length],
@@ -1156,17 +1289,32 @@
 
       function cardMarkup(account, index) {
         const erased = account.damaged ? 'erased' : '';
-        const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${account.likes.toLocaleString()} likes remained</span>` : '';
-        const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${account.remainingTrace}</span>` : '';
+        const visibleId = `User_${String(index + 1).padStart(3, '0')}`;
+        const smallRemainOptions = [
+          `${account.likes.toLocaleString()} likes remain`,
+          `${account.followers.toLocaleString()} followers remain`,
+          account.sharedTrace,
+        ];
+        const partialOptions = [
+          account.remainingTrace,
+          'saved by 42 users',
+          'one reply remains',
+          'old signature: “don’t wai...”',
+          'mentioned elsewhere',
+          'liked hidden content',
+          'reply chain interrupted',
+          'old nickname: “_xiaoyu”',
+        ];
+        const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${smallRemainOptions[index % smallRemainOptions.length]}</span>` : '';
+        const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${partialOptions[index % partialOptions.length]}</span>` : '';
         const actionLine = account.traceLevel === 3 ? `<span class="card-action">once ${account.pastAction}</span>` : '';
         const strongLine = account.traceLevel === 3
           ? `<span class="strong-thumb" aria-hidden="true"></span><span class="strong-fragments">${account.strongResidues.map((fragment) => `<span>${fragment}</span>`).join('')}</span>`
           : '';
         return `
-          <button class="avatar-card trace-level-${account.traceLevel}" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open incomplete profile for User_${account.userId}">
+          <button class="avatar-card trace-level-${account.traceLevel}" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open remaining trace for ${visibleId}">
             ${avatarMarkup(account.avatar)}
-            <span class="card-number">No.${String(index + 1).padStart(4, '0')}</span>
-            <span class="card-user ${erased}">User_${account.userId}</span>
+            <span class="card-user ${erased}">${visibleId}</span>
             ${dataLine}
             ${traceLine}
             ${actionLine}
@@ -1206,6 +1354,13 @@
         </section>`;
       }
 
+      function reportHistoryList(account) {
+        return `<section class="report-history" aria-label="report history and later viewers">
+          <h3>Report history</h3>
+          <ul>${account.reportTraces.concat(account.laterTraces).map((trace) => `<li>${trace}</li>`).join('')}</ul>
+        </section>`;
+      }
+
       function profileFragments(account) {
         return [
           '[deleted comment] “I just wanted to say…”',
@@ -1240,12 +1395,12 @@
               <p class="past-action-line">once ${account.pastAction}</p>
             </div>
           </header>
-          <section class="profile-stats" aria-label="Unavailable profile counts">
+          <section class="profile-stats" aria-label="remaining profile counts">
             <div><span>${account.followers.toLocaleString()}</span><small>followers</small></div>
             <div><span>${account.following.toLocaleString()}</span><small>following</small></div>
             <div><span>${account.likes.toLocaleString()}</span><small>likes</small></div>
           </section>
-          <section class="empty-profile-state" aria-label="unavailable account state">
+          <section class="empty-profile-state" aria-label="ambiguous surface state">
             <div class="warning-row">
               <strong aria-hidden="true">!</strong>
               <p><span class="warning-title">Only the relations answer</span>${account.ambiguousReason}</p>
@@ -1257,6 +1412,7 @@
             <ul>${fragments.map((fragment) => `<li>${fragment}</li>`).join('')}</ul>
           </section>
           ${sharedSurfaceList(account)}
+          ${reportHistoryList(account)}
           <section class="trace-field" aria-label="hover areas with temporary traces">
             ${profileTraceTexts.map(tracePoint).join('')}
           </section>
