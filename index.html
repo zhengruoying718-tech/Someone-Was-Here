@@ -317,6 +317,34 @@
         letter-spacing: -0.03em;
       }
 
+      .strong-thumb {
+        width: 2.35rem;
+        height: 1.55rem;
+        margin: 0.36rem 0 0.1rem;
+        border: 1px solid rgba(203, 196, 184, 0.24);
+        border-radius: 0.18rem;
+        background:
+          linear-gradient(135deg, transparent 48%, rgba(176, 92, 84, 0.28) 49%, transparent 51%),
+          rgba(221, 215, 203, 0.08);
+      }
+
+      .strong-fragments {
+        display: grid;
+        gap: 0.12rem;
+        width: 100%;
+        margin-top: 0.28rem;
+        color: #b99b91;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.53rem;
+        line-height: 1.25;
+      }
+
+      .strong-fragments span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
       .trace-percent {
         width: 100%;
         margin-top: 0.34rem;
@@ -339,8 +367,9 @@
       }
 
       .avatar-card.trace-level-3 {
-        border-color: rgba(226, 220, 207, 0.24);
-        background: rgba(232, 228, 218, 0.082);
+        border-color: rgba(226, 220, 207, 0.36);
+        background: rgba(232, 228, 218, 0.105);
+        box-shadow: inset 0 0 0 1px rgba(169, 91, 83, 0.12);
       }
 
       .erased {
@@ -570,11 +599,34 @@
         font-size: 0.78rem;
       }
 
+      .past-action-line {
+        margin: 0 0 0.85rem;
+        color: #7d5c56;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.7rem;
+      }
+
       .shared-surface {
-        margin: 0.9rem 0 0;
-        padding-top: 0.8rem;
-        border-top: 1px solid rgba(60, 57, 52, 0.08);
-        color: #8b5c57;
+        margin: 0 1.35rem 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.45rem;
+        background: #eee9df;
+      }
+
+      .shared-surface h3 {
+        margin: 0 0 0.7rem;
+        color: #4a4742;
+        font-size: 0.82rem;
+        font-weight: 520;
+      }
+
+      .shared-surface ul {
+        display: grid;
+        gap: 0.42rem;
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #7d5c56;
         font-family: "SFMono-Regular", Consolas, monospace;
         font-size: 0.68rem;
       }
@@ -671,19 +723,33 @@
 
       .residue-copy {
         position: absolute;
-        right: 0.75rem;
-        bottom: 0.65rem;
-        left: 0.75rem;
+        top: 1.2rem;
+        right: 0.95rem;
+        left: 0.95rem;
+        z-index: 2;
+        display: grid;
+        min-height: 4.8rem;
+        place-items: center;
         color: #8b5c57;
+        background: rgba(244, 240, 231, 0.86);
+        border: 1px solid rgba(139, 92, 87, 0.12);
+        border-radius: 0.25rem;
         font-family: "SFMono-Regular", Consolas, monospace;
         font-size: 0.66rem;
+        line-height: 1.35;
+        text-align: center;
         opacity: 0;
         pointer-events: none;
       }
 
       .broken-block:hover .residue-copy,
       .broken-block:focus .residue-copy {
-        animation: traceBrief 1.2s ease both;
+        animation: residueFlash 0.8s ease both;
+      }
+
+      .broken-block:hover .broken-image,
+      .broken-block:focus .broken-image {
+        animation: imageResidue 0.8s ease both;
       }
 
       .broken-block.wide {
@@ -751,6 +817,34 @@
         100% {
           opacity: 0;
           transform: translate(-50%, -0.08rem);
+        }
+      }
+
+      @keyframes residueFlash {
+        0%,
+        100% {
+          opacity: 0;
+          filter: blur(1px);
+        }
+        18%,
+        62% {
+          opacity: 0.95;
+          filter: blur(0);
+        }
+      }
+
+      @keyframes imageResidue {
+        0%,
+        100% {
+          background:
+            linear-gradient(135deg, transparent 49%, rgba(120, 113, 103, 0.22) 50%, transparent 51%),
+            #ded9cf;
+        }
+        24%,
+        58% {
+          background:
+            linear-gradient(135deg, transparent 49%, rgba(169, 91, 83, 0.22) 50%, transparent 51%),
+            #e9e3d7;
         }
       }
 
@@ -867,12 +961,12 @@
       const statuses = ['unavailable', 'reset', 'hidden', 'restricted', 'not found'];
       const avatarTypes = ['silhouette', 'blank', 'reset', 'broken', 'silhouette', 'blank', 'icon'];
       const pastActions = [
-        'posted a note',
+        'replied to a deleted post',
         'changed avatar',
         'sent a comment',
-        'liked a hidden post',
+        'liked hidden content',
         'followed another unavailable user',
-        'saved an image',
+        'posted an image',
         'replied before deletion',
         'shared a post',
         'edited signature',
@@ -908,6 +1002,12 @@
         'mentioned in another deleted profile',
         'appears in 12 broken links',
       ];
+      const strongResidues = [
+        ['old name: 小…', 'reply: 我只是…', 'old signature: 不…', 'image failed'],
+        ['old name: v_…', 'reply: why did…', 'old signature: —', 'saved by 42'],
+        ['old name: 旧…', 'reply: before…', 'old signature: 不想…', 'mentioned elsewhere'],
+        ['old name: visitor…', 'reply: 我只是…', 'old signature: hidden', 'image failed'],
+      ];
       const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
 
       const grid = document.getElementById('avatar-grid');
@@ -929,11 +1029,11 @@
       }
 
       function pickTraceLevel(index) {
+        if (index % 50 === 13) return 3;
         const value = seededRandom(index + 301);
         if (value < 0.7) return 0;
         if (value < 0.9) return 1;
-        if (value < 0.98) return 2;
-        return 3;
+        return 2;
       }
 
       function buildAccounts() {
@@ -958,6 +1058,8 @@
             remainingTrace: remainingTraces[index % remainingTraces.length],
             ambiguousReason: ambiguousReasons[index % ambiguousReasons.length],
             sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
+            sharedTraces: Array.from({ length: 4 }, (_, offset) => sharedSurfaceTraces[(index + offset) % sharedSurfaceTraces.length]),
+            strongResidues: strongResidues[index % strongResidues.length],
             avatar: avatarTypes[index % avatarTypes.length],
             residue: residueFragments[index % residueFragments.length],
             damaged: index % 6 === 0 || index % 19 === 0,
@@ -982,6 +1084,9 @@
         const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${account.likes.toLocaleString()} likes remained</span>` : '';
         const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${account.remainingTrace}</span>` : '';
         const actionLine = account.traceLevel === 3 ? `<span class="card-action">once ${account.pastAction}</span>` : '';
+        const strongLine = account.traceLevel === 3
+          ? `<span class="strong-thumb" aria-hidden="true"></span><span class="strong-fragments">${account.strongResidues.map((fragment) => `<span>${fragment}</span>`).join('')}</span>`
+          : '';
         return `
           <button class="avatar-card trace-level-${account.traceLevel}" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open incomplete profile for User_${account.userId}">
             ${avatarMarkup(account.avatar)}
@@ -990,6 +1095,7 @@
             ${dataLine}
             ${traceLine}
             ${actionLine}
+            ${strongLine}
             <span class="trace-percent">trace remaining: ${account.tracePercent}%</span>
           </button>`;
       }
@@ -1015,6 +1121,13 @@
 
       function tracePoint(text) {
         return `<span class="trace-point" tabindex="0"><span class="trace-copy">${text}</span></span>`;
+      }
+
+      function sharedSurfaceList(account) {
+        return `<section class="shared-surface" aria-label="shared surface traces">
+          <h3>Shared surface traces</h3>
+          <ul>${account.sharedTraces.map((trace) => `<li>${trace}</li>`).join('')}</ul>
+        </section>`;
       }
 
       function profileFragments(account) {
@@ -1047,7 +1160,8 @@
             <div>
               <p class="eyebrow">Incomplete Profile</p>
               <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">User_${account.userId}</h2>
-              <p class="profile-number">user ID: ${account.userId} · once ${account.pastAction}</p>
+              <p class="profile-number">user ID: ${account.userId}</p>
+              <p class="past-action-line">past action sensed: once ${account.pastAction}</p>
             </div>
           </header>
           <section class="profile-stats" aria-label="Unavailable profile counts">
@@ -1065,8 +1179,8 @@
           <section class="fragment-list" aria-label="fragments left before disappearing">
             <h3>Before disappearing, this account left:</h3>
             <ul>${fragments.map((fragment) => `<li>${fragment}</li>`).join('')}</ul>
-            <p class="shared-surface">${account.sharedTrace}</p>
           </section>
+          ${sharedSurfaceList(account)}
           <section class="trace-field" aria-label="hover areas with temporary traces">
             ${profileTraceTexts.map(tracePoint).join('')}
           </section>
@@ -1075,10 +1189,10 @@
           </section>
           <section class="missing-grid" aria-label="missing profile contents">
             ${brokenBlock('profile image failed to load', 'image loaded once')}
-            ${brokenBlock('grey missing content block', account.residue)}
+            ${brokenBlock('grey missing content block', '我只是说……')}
             ${brokenBlock('deleted signature', 'old signature: 不想解释')}
-            ${brokenBlock(`${account.hiddenPosts} hidden posts`, 'the post is gone, but the relation remains')}
-            ${brokenBlock('content deleted', 'someone saved this before it disappeared', true)}
+            ${brokenBlock(`${account.hiddenPosts} hidden posts`, 'liked by 216,303 before removal')}
+            ${brokenBlock('content deleted', 'before it disappeared… one reply remained', true)}
           </section>`;
 
         modal.hidden = false;
