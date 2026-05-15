@@ -345,6 +345,45 @@
         white-space: nowrap;
       }
 
+      .card-memory {
+        position: absolute;
+        inset: 0.45rem;
+        display: grid;
+        place-items: end center;
+        padding-bottom: 0.65rem;
+        color: #d8c9bd;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.58rem;
+        line-height: 1.3;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .avatar-card:hover .card-memory,
+      .avatar-card:focus-visible .card-memory {
+        animation: residueFlash 0.85s ease both 120ms;
+      }
+
+      .avatar-card:hover .card-user,
+      .avatar-card:focus-visible .card-user {
+        animation: onePixelShift 0.85s ease both;
+      }
+
+      .avatar-card.trace-level-3 .avatar::before {
+        position: absolute;
+        inset: 0.35rem;
+        border-radius: 50%;
+        background: rgba(238, 231, 218, 0.18);
+        content: "";
+        opacity: 0.42;
+      }
+
+      .avatar-card.trace-level-3:hover .avatar::before,
+      .avatar-card.trace-level-3:focus-visible .avatar::before {
+        animation: ghostPass 0.9s ease both;
+      }
+
       .trace-percent {
         width: 100%;
         margin-top: 0.34rem;
@@ -848,6 +887,32 @@
         }
       }
 
+      @keyframes onePixelShift {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        44% {
+          transform: translateX(1px);
+        }
+        56% {
+          transform: translateX(-1px);
+        }
+      }
+
+      @keyframes ghostPass {
+        0%,
+        100% {
+          opacity: 0.12;
+          filter: blur(2px);
+        }
+        40%,
+        62% {
+          opacity: 0.48;
+          filter: blur(0.4px);
+        }
+      }
+
       @media (max-width: 760px) {
         .avatar-grid {
           grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
@@ -920,13 +985,13 @@
   <body>
     <main class="page-shell">
       <section class="intro" aria-labelledby="page-title">
-        <p class="surface-label">fictional unavailable account archive</p>
+        <p class="surface-label">shared surface / residual actions</p>
         <h1 id="page-title">Someone was here.</h1>
-        <p class="subtitle">This account is no longer available.</p>
+        <p class="subtitle">Only partial traces remain on the surface.</p>
       </section>
 
       <section class="archive-count" aria-live="polite">
-        <span>1000 unavailable accounts</span>
+        <span>1000 partial surface traces</span>
         <em id="visible-count">120 currently visible</em>
       </section>
 
@@ -950,7 +1015,7 @@
       const LOAD_STEP = 120;
 
       const ambiguousReasons = [
-        'content unavailable under platform rules',
+        'content cannot be reconstructed from the remaining surface',
         'removed after reports',
         'restricted after repeated activity',
         'account reset following abnormal behaviour',
@@ -958,14 +1023,14 @@
         'traces remain in cached relations',
       ];
 
-      const statuses = ['unavailable', 'reset', 'hidden', 'restricted', 'not found'];
+      const statuses = ['silent', 'reset', 'hidden', 'cached', 'unreadable'];
       const avatarTypes = ['silhouette', 'blank', 'reset', 'broken', 'silhouette', 'blank', 'icon'];
       const pastActions = [
         'replied to a deleted post',
         'changed avatar',
         'sent a comment',
         'liked hidden content',
-        'followed another unavailable user',
+        'followed another missing profile',
         'posted an image',
         'replied before deletion',
         'shared a post',
@@ -996,7 +1061,7 @@
         'the post is gone, but the relation remains',
       ];
       const sharedSurfaceTraces = [
-        '3 people still follow this unavailable account',
+        '3 users still follow this silent profile',
         'one reply remains but the original post is gone',
         'saved by 42 users',
         'mentioned in another deleted profile',
@@ -1007,6 +1072,15 @@
         ['old name: v_…', 'reply: why did…', 'old signature: —', 'saved by 42'],
         ['old name: 旧…', 'reply: before…', 'old signature: 不想…', 'mentioned elsewhere'],
         ['old name: visitor…', 'reply: 我只是…', 'old signature: hidden', 'image failed'],
+      ];
+      const memoryFlashes = [
+        'xiao___',
+        'why did…',
+        'I was going…',
+        'before it dis…',
+        "please don't…",
+        'image loaded once',
+        'saved by 42',
       ];
       const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
 
@@ -1060,6 +1134,7 @@
             sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
             sharedTraces: Array.from({ length: 4 }, (_, offset) => sharedSurfaceTraces[(index + offset) % sharedSurfaceTraces.length]),
             strongResidues: strongResidues[index % strongResidues.length],
+            memoryFlash: memoryFlashes[index % memoryFlashes.length],
             avatar: avatarTypes[index % avatarTypes.length],
             residue: residueFragments[index % residueFragments.length],
             damaged: index % 6 === 0 || index % 19 === 0,
@@ -1096,7 +1171,8 @@
             ${traceLine}
             ${actionLine}
             ${strongLine}
-            <span class="trace-percent">trace remaining: ${account.tracePercent}%</span>
+            <span class="trace-percent">surface trace: ${account.tracePercent}%</span>
+            <span class="card-memory">${account.memoryFlash}</span>
           </button>`;
       }
 
@@ -1132,10 +1208,10 @@
 
       function profileFragments(account) {
         return [
-          '1 comment fragment',
-          `${Math.max(1, account.hiddenPosts)} hidden posts`,
-          `${Math.max(3, Math.round(account.following / 8))} saved relations`,
-          account.avatar === 'broken' ? '1 failed image' : 'old signature partially visible',
+          '[deleted comment] “I just wanted to say…”',
+          `[failed image] liked by ${Math.max(216, account.likes).toLocaleString()}`, 
+          `saved by ${Math.max(42, Math.round(account.following / 8))} users`,
+          account.avatar === 'broken' ? '[failed image]' : '[old signature] “don’t wait for…”',
           account.remainingTrace,
           account.likes > 50000 ? 'liked content cannot be reconstructed' : account.sharedTrace,
         ].slice(0, account.traceLevel + 3);
@@ -1149,19 +1225,19 @@
           'profile image reset',
           'one comment remains',
           'follow relation remains',
-          'content deleted',
+          'before it dis…',
         ];
         const fragments = profileFragments(account);
 
         modalContent.innerHTML = `
-          <div class="blank-banner"><span>banner unavailable · previous surface retained</span></div>
+          <div class="blank-banner"><span>banner area / cached surface</span></div>
           <header class="profile-header">
             ${avatarMarkup(account.avatar, true)}
             <div>
-              <p class="eyebrow">Incomplete Profile</p>
+              <p class="eyebrow">Surface fragment</p>
               <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">User_${account.userId}</h2>
               <p class="profile-number">user ID: ${account.userId}</p>
-              <p class="past-action-line">past action sensed: once ${account.pastAction}</p>
+              <p class="past-action-line">once ${account.pastAction}</p>
             </div>
           </header>
           <section class="profile-stats" aria-label="Unavailable profile counts">
@@ -1172,12 +1248,12 @@
           <section class="empty-profile-state" aria-label="unavailable account state">
             <div class="warning-row">
               <strong aria-hidden="true">!</strong>
-              <p><span class="warning-title">This account is unavailable</span>Content cannot be viewed · ${account.ambiguousReason}</p>
-              <em>Trace remaining: ${account.tracePercent}%</em>
+              <p><span class="warning-title">Only the relations answer</span>${account.ambiguousReason}</p>
+              <em>surface trace: ${account.tracePercent}%</em>
             </div>
           </section>
-          <section class="fragment-list" aria-label="fragments left before disappearing">
-            <h3>Before disappearing, this account left:</h3>
+          <section class="fragment-list" aria-label="surface fragments">
+            <h3>found in the surface:</h3>
             <ul>${fragments.map((fragment) => `<li>${fragment}</li>`).join('')}</ul>
           </section>
           ${sharedSurfaceList(account)}
@@ -1188,11 +1264,11 @@
             ${garbledLines.map((line) => `<p>${line}</p>`).join('')}
           </section>
           <section class="missing-grid" aria-label="missing profile contents">
-            ${brokenBlock('profile image failed to load', 'image loaded once')}
-            ${brokenBlock('grey missing content block', '我只是说……')}
-            ${brokenBlock('deleted signature', 'old signature: 不想解释')}
-            ${brokenBlock(`${account.hiddenPosts} hidden posts`, 'liked by 216,303 before removal')}
-            ${brokenBlock('content deleted', 'before it disappeared… one reply remained', true)}
+            ${brokenBlock('[failed image]', 'image loaded once')}
+            ${brokenBlock('[deleted comment]', '我只是说……')}
+            ${brokenBlock('[old signature]', 'old signature: 不想解释')}
+            ${brokenBlock('[failed image] liked by 216,303', 'liked by 216,303 before removal')}
+            ${brokenBlock('[broken caption] before it dis…', 'before it disappeared… one reply remained', true)}
           </section>`;
 
         modal.hidden = false;
