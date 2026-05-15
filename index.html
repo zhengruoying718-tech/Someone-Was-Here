@@ -290,6 +290,59 @@
         letter-spacing: -0.025em;
       }
 
+
+
+      .card-data,
+      .card-action,
+      .trace-percent {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .card-data {
+        margin-top: 0.26rem;
+        color: #9b968e;
+        font-size: 0.56rem;
+      }
+
+      .card-action {
+        width: 100%;
+        margin-top: 0.26rem;
+        color: #cfc8ba;
+        font-size: 0.56rem;
+        letter-spacing: -0.03em;
+      }
+
+      .trace-percent {
+        width: 100%;
+        margin-top: 0.34rem;
+        color: #68635d;
+        font-size: 0.54rem;
+        letter-spacing: -0.02em;
+      }
+
+      .avatar-card.trace-level-0 {
+        background: rgba(232, 228, 218, 0.024);
+      }
+
+      .avatar-card.trace-level-1 {
+        background: rgba(232, 228, 218, 0.038);
+      }
+
+      .avatar-card.trace-level-2 {
+        border-color: rgba(213, 209, 198, 0.16);
+        background: rgba(232, 228, 218, 0.052);
+      }
+
+      .avatar-card.trace-level-3 {
+        border-color: rgba(226, 220, 207, 0.24);
+        background: rgba(232, 228, 218, 0.082);
+      }
+
       .erased {
         color: #a8a29a;
         text-decoration: line-through;
@@ -491,6 +544,41 @@
         font-weight: 600;
       }
 
+
+
+      .fragment-list {
+        margin: 0 1.35rem 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.45rem;
+        background: #f0ece4;
+      }
+
+      .fragment-list h3 {
+        margin: 0 0 0.7rem;
+        color: #4a4742;
+        font-size: 0.82rem;
+        font-weight: 520;
+      }
+
+      .fragment-list ul {
+        display: grid;
+        gap: 0.42rem;
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #6b665f;
+        font-size: 0.78rem;
+      }
+
+      .shared-surface {
+        margin: 0.9rem 0 0;
+        padding-top: 0.8rem;
+        border-top: 1px solid rgba(60, 57, 52, 0.08);
+        color: #8b5c57;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.68rem;
+      }
+
       .trace-field {
         display: grid;
         grid-template-columns: repeat(6, minmax(2rem, 1fr));
@@ -569,6 +657,7 @@
       }
 
       .broken-block {
+        position: relative;
         display: grid;
         gap: 0.65rem;
         min-height: 10.5rem;
@@ -576,6 +665,25 @@
         border: 1px solid rgba(60, 57, 52, 0.08);
         border-radius: 0.35rem;
         background: #f4f1ea;
+      }
+
+
+
+      .residue-copy {
+        position: absolute;
+        right: 0.75rem;
+        bottom: 0.65rem;
+        left: 0.75rem;
+        color: #8b5c57;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.66rem;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .broken-block:hover .residue-copy,
+      .broken-block:focus .residue-copy {
+        animation: traceBrief 1.2s ease both;
       }
 
       .broken-block.wide {
@@ -708,7 +816,8 @@
         }
 
         .profile-stats,
-        .empty-profile-state {
+        .empty-profile-state,
+        .fragment-list {
           margin-inline: 1rem;
         }
       }
@@ -746,27 +855,58 @@
       const INITIAL_VISIBLE = 120;
       const LOAD_STEP = 120;
 
-      const banReasons = [
-        'violated platform rules',
-        'reported by multiple users',
-        'content temporarily unavailable',
-        'identity verification failed',
-        'account exists at risk',
-        'profile reset by system',
-        'content removed according to regulations',
-        'user not found',
-        'account unavailable',
+      const ambiguousReasons = [
+        'content unavailable under platform rules',
+        'removed after reports',
+        'restricted after repeated activity',
+        'account reset following abnormal behaviour',
+        'previous posts cannot be reconstructed',
+        'traces remain in cached relations',
       ];
 
-      const statuses = ['unavailable', 'banned', 'hidden', 'reset'];
+      const statuses = ['unavailable', 'reset', 'hidden', 'restricted', 'not found'];
       const avatarTypes = ['silhouette', 'blank', 'reset', 'broken', 'silhouette', 'blank', 'icon'];
-      const traces = [
-        'last active 247 days ago',
-        'signature removed',
+      const pastActions = [
+        'posted a note',
+        'changed avatar',
+        'sent a comment',
+        'liked a hidden post',
+        'followed another unavailable user',
+        'saved an image',
+        'replied before deletion',
+        'shared a post',
+        'edited signature',
+        'was mentioned by someone else',
+      ];
+      const remainingTraces = [
         'one comment remains',
-        'profile image reset',
-        'content deleted',
+        'old avatar reset',
+        'liked post missing',
+        'reply fragment left',
+        'failed image remains',
+        'signature partially visible',
         'follow relation remains',
+        'saved count remains',
+        'mention link broken',
+        'cached relation remains',
+      ];
+      const residueFragments = [
+        'I was just…',
+        'last reply: 03:17',
+        'old signature: 不想解释',
+        'image loaded once',
+        'liked by 216,303 before removal',
+        'reply remained after deletion',
+        'someone saved this before it disappeared',
+        'mentioned in another broken profile',
+        'the post is gone, but the relation remains',
+      ];
+      const sharedSurfaceTraces = [
+        '3 people still follow this unavailable account',
+        'one reply remains but the original post is gone',
+        'saved by 42 users',
+        'mentioned in another deleted profile',
+        'appears in 12 broken links',
       ];
       const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
 
@@ -788,21 +928,38 @@
         return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
       }
 
+      function pickTraceLevel(index) {
+        const value = seededRandom(index + 301);
+        if (value < 0.7) return 0;
+        if (value < 0.9) return 1;
+        if (value < 0.98) return 2;
+        return 3;
+      }
+
       function buildAccounts() {
         return Array.from({ length: ACCOUNT_COUNT }, (_, index) => {
-          const id = String(randomInt(index + 11, 1000000000, 9999999999));
+          const userId = String(randomInt(index + 11, 1000000000, 9999999999));
+          const traceLevel = pickTraceLevel(index);
+          const followers = randomInt(index + 31, 0, 98000);
+          const following = randomInt(index + 47, 0, 1200);
+          const likes = randomInt(index + 63, 0, 240000);
+          const hiddenPosts = randomInt(index + 95, 0, 47);
           return {
-            id,
-            userName: `User_${id}`,
-            avatar: avatarTypes[index % avatarTypes.length],
-            followers: randomInt(index + 31, 0, 98000),
-            following: randomInt(index + 47, 0, 1200),
-            likes: randomInt(index + 63, 0, 240000),
-            lastActive: randomInt(index + 79, 4, 1300),
-            hiddenPosts: randomInt(index + 95, 0, 47),
-            banReason: banReasons[index % banReasons.length],
+            userId,
             status: statuses[index % statuses.length],
-            trace: traces[index % traces.length],
+            followers,
+            following,
+            likes,
+            lastActive: randomInt(index + 79, 4, 1300),
+            hiddenPosts,
+            traceLevel,
+            tracePercent: randomInt(index + 127, 3, 89),
+            pastAction: pastActions[index % pastActions.length],
+            remainingTrace: remainingTraces[index % remainingTraces.length],
+            ambiguousReason: ambiguousReasons[index % ambiguousReasons.length],
+            sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
+            avatar: avatarTypes[index % avatarTypes.length],
+            residue: residueFragments[index % residueFragments.length],
             damaged: index % 6 === 0 || index % 19 === 0,
           };
         });
@@ -822,13 +979,18 @@
 
       function cardMarkup(account, index) {
         const erased = account.damaged ? 'erased' : '';
+        const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${account.likes.toLocaleString()} likes remained</span>` : '';
+        const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${account.remainingTrace}</span>` : '';
+        const actionLine = account.traceLevel === 3 ? `<span class="card-action">once ${account.pastAction}</span>` : '';
         return `
-          <button class="avatar-card" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open incomplete profile for ${account.userName}">
+          <button class="avatar-card trace-level-${account.traceLevel}" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open incomplete profile for User_${account.userId}">
             ${avatarMarkup(account.avatar)}
             <span class="card-number">No.${String(index + 1).padStart(4, '0')}</span>
-            <span class="card-user ${erased}">${account.userName}</span>
-            <span class="card-status">${account.status}</span>
-            <span class="card-trace">${account.trace}</span>
+            <span class="card-user ${erased}">User_${account.userId}</span>
+            ${dataLine}
+            ${traceLine}
+            ${actionLine}
+            <span class="trace-percent">trace remaining: ${account.tracePercent}%</span>
           </button>`;
       }
 
@@ -838,15 +1000,16 @@
         loadMoreButton.hidden = visible >= accounts.length;
       }
 
-      function brokenBlock(label, wide = false) {
+      function brokenBlock(label, residue, wide = false) {
         return `
-          <div class="broken-block ${wide ? 'wide' : ''}">
+          <div class="broken-block ${wide ? 'wide' : ''}" tabindex="0">
             <div class="broken-image" aria-hidden="true"></div>
             <div class="missing-lines">
               <i></i>
               <i></i>
               <small>${label}</small>
             </div>
+            <span class="residue-copy">${residue}</span>
           </div>`;
       }
 
@@ -854,25 +1017,37 @@
         return `<span class="trace-point" tabindex="0"><span class="trace-copy">${text}</span></span>`;
       }
 
+      function profileFragments(account) {
+        return [
+          '1 comment fragment',
+          `${Math.max(1, account.hiddenPosts)} hidden posts`,
+          `${Math.max(3, Math.round(account.following / 8))} saved relations`,
+          account.avatar === 'broken' ? '1 failed image' : 'old signature partially visible',
+          account.remainingTrace,
+          account.likes > 50000 ? 'liked content cannot be reconstructed' : account.sharedTrace,
+        ].slice(0, account.traceLevel + 3);
+      }
+
       function openModal(account, trigger) {
         lastFocusedCard = trigger;
         const profileTraceTexts = [
           `last active ${account.lastActive} days ago`,
           'signature removed',
-          'one comment remains',
           'profile image reset',
-          'content deleted',
+          'one comment remains',
           'follow relation remains',
+          'content deleted',
         ];
+        const fragments = profileFragments(account);
 
         modalContent.innerHTML = `
-          <div class="blank-banner"><span>banner unavailable</span></div>
+          <div class="blank-banner"><span>banner unavailable · previous surface retained</span></div>
           <header class="profile-header">
             ${avatarMarkup(account.avatar, true)}
             <div>
               <p class="eyebrow">Incomplete Profile</p>
-              <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">${account.userName}</h2>
-              <p class="profile-number">random user number: ${account.id}</p>
+              <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">User_${account.userId}</h2>
+              <p class="profile-number">user ID: ${account.userId} · once ${account.pastAction}</p>
             </div>
           </header>
           <section class="profile-stats" aria-label="Unavailable profile counts">
@@ -883,8 +1058,14 @@
           <section class="empty-profile-state" aria-label="unavailable account state">
             <div class="warning-row">
               <strong aria-hidden="true">!</strong>
-              <p><span class="warning-title">This account is unavailable</span>Content cannot be viewed · Account has been restricted · ${account.banReason}</p>
+              <p><span class="warning-title">This account is unavailable</span>Content cannot be viewed · ${account.ambiguousReason}</p>
+              <em>Trace remaining: ${account.tracePercent}%</em>
             </div>
+          </section>
+          <section class="fragment-list" aria-label="fragments left before disappearing">
+            <h3>Before disappearing, this account left:</h3>
+            <ul>${fragments.map((fragment) => `<li>${fragment}</li>`).join('')}</ul>
+            <p class="shared-surface">${account.sharedTrace}</p>
           </section>
           <section class="trace-field" aria-label="hover areas with temporary traces">
             ${profileTraceTexts.map(tracePoint).join('')}
@@ -893,11 +1074,11 @@
             ${garbledLines.map((line) => `<p>${line}</p>`).join('')}
           </section>
           <section class="missing-grid" aria-label="missing profile contents">
-            ${brokenBlock('profile image failed to load')}
-            ${brokenBlock('grey missing content block')}
-            ${brokenBlock('deleted signature')}
-            ${brokenBlock(`${account.hiddenPosts} hidden posts`)}
-            ${brokenBlock('content deleted', true)}
+            ${brokenBlock('profile image failed to load', 'image loaded once')}
+            ${brokenBlock('grey missing content block', account.residue)}
+            ${brokenBlock('deleted signature', 'old signature: 不想解释')}
+            ${brokenBlock(`${account.hiddenPosts} hidden posts`, 'the post is gone, but the relation remains')}
+            ${brokenBlock('content deleted', 'someone saved this before it disappeared', true)}
           </section>`;
 
         modal.hidden = false;
