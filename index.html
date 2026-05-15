@@ -281,7 +281,7 @@
       .avatar.cached::after,
       .avatar.old::after {
         color: rgba(244, 242, 236, 0.72);
-        content: "xiao_";
+        content: "_";
         font-family: "SFMono-Regular", Consolas, monospace;
         font-size: 0.62rem;
       }
@@ -895,6 +895,19 @@
         grid-column: span 2;
       }
 
+      .broken-block.no-image .broken-image {
+        min-height: 2.1rem;
+        background: #e8e2d6;
+      }
+
+      .broken-block.no-image .broken-image::after {
+        width: 56%;
+        height: 0.45rem;
+        border: 0;
+        border-radius: 999px;
+        background: rgba(121, 115, 106, 0.13);
+      }
+
       .broken-image {
         display: grid;
         min-height: 6.4rem;
@@ -1127,7 +1140,6 @@
       ];
 
       const statuses = ['silent', 'reset', 'hidden', 'cached', 'unreadable'];
-      const avatarTypes = ['silhouette', 'blank', 'failed', 'partial', 'cached', 'old', 'double', 'half', 'ghost', 'broken', 'reset', 'icon'];
       const pastActions = [
         'replied to a deleted post',
         'changed avatar',
@@ -1141,16 +1153,46 @@
         'was mentioned by someone else',
       ];
       const remainingTraces = [
-        'one comment remains',
+        'one reply remains',
         'old avatar reset',
-        'liked post missing',
-        'reply fragment left',
-        'failed image remains',
-        'signature partially visible',
+        'liked hidden content',
+        'reply chain interrupted',
+        'saved by 42 users',
+        'old signature: “don’t wai...”',
         'follow relation remains',
-        'saved count remains',
-        'mention link broken',
-        'cached relation remains',
+        'mentioned elsewhere',
+        'old nickname: “_xiaoyu”',
+        'appears in broken links',
+      ];
+      const oldSignatures = [
+        '今天不想说话',
+        '不要再等了',
+        '只是记录一下',
+        '我会删掉',
+        '别问了',
+        '晚点回来',
+        '没什么好解释',
+        'temporary',
+      ];
+      const commentFragments = [
+        '我只是想说……',
+        '为什么会这样',
+        '刚刚还在',
+        '别转发了',
+        '这条看不到了',
+        'before it disappeared',
+        '谁还记得',
+        '我看到过',
+      ];
+      const oldNicknames = [
+        '小雨_',
+        'visitor_',
+        'blue_',
+        'momo_',
+        '匿名用户_',
+        'r3m_',
+        'still_',
+        'user_lost_',
       ];
       const residueFragments = [
         'I was just…',
@@ -1158,7 +1200,7 @@
         'old signature: 不想解释',
         'image loaded once',
         'liked by 216,303 before removal',
-        'reply remained after deletion',
+        'one reply remained',
         'someone saved this before it disappeared',
         'mentioned in another broken profile',
         'the post is gone, but the relation remains',
@@ -1171,20 +1213,15 @@
         'appears in 12 broken links',
         'linked from removed content',
       ];
-      const strongResidues = [
-        ['old name: 小…', 'reply: 我只是…', 'old signature: 不…', 'image failed'],
-        ['old name: v_…', 'reply: why did…', 'old signature: —', 'saved by 42'],
-        ['old name: 旧…', 'reply: before…', 'old signature: 不想…', 'mentioned elsewhere'],
-        ['old name: visitor…', 'reply: 我只是…', 'old signature: hidden', 'image failed'],
-      ];
       const memoryFlashes = [
-        'xiao___',
         'why did…',
         'I was going…',
         'before it dis…',
         "please don't…",
         'image loaded once',
         'saved by 42',
+        '刚刚还在',
+        '别转发了',
       ];
       const communityReports = [
         'reported by 23 users',
@@ -1203,6 +1240,8 @@
         'someone searched this account yesterday',
       ];
       const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
+      const nicknameAvatarIndexes = new Set([1, 4, 58, 85]);
+      const imageTraceIndexes = new Set([4, 22, 58, 85, 91]);
 
       const grid = document.getElementById('avatar-grid');
       const visibleCount = document.getElementById('visible-count');
@@ -1241,6 +1280,18 @@
         return randomInt(index + 127, 84, 94);
       }
 
+      function avatarForAccount(index, traceLevel) {
+        if (nicknameAvatarIndexes.has(index)) return index % 2 === 0 ? 'old' : 'cached';
+        if (traceLevel === 0) return index % 12 === 0 ? 'blank' : 'silhouette';
+        if (traceLevel === 1) return index % 9 === 0 ? 'reset' : 'silhouette';
+        if (traceLevel === 2) return imageTraceIndexes.has(index) ? 'failed' : ['silhouette', 'blank', 'half'][index % 3];
+        return ['partial', 'double', 'ghost', 'failed', 'old'][index % 5];
+      }
+
+      function pickMany(list, index, count) {
+        return Array.from({ length: count }, (_, offset) => list[(index + offset * 3) % list.length]);
+      }
+
       function buildAccounts() {
         return Array.from({ length: ACCOUNT_COUNT }, (_, index) => {
           const userId = String(randomInt(index + 11, 1000000000, 9999999999));
@@ -1249,6 +1300,10 @@
           const following = randomInt(index + 47, 0, 1200);
           const likes = randomInt(index + 63, 0, 240000);
           const hiddenPosts = randomInt(index + 95, 0, 47);
+          const oldSignature = oldSignatures[index % oldSignatures.length];
+          const commentFragment = commentFragments[index % commentFragments.length];
+          const oldNickname = oldNicknames[index % oldNicknames.length];
+          const hasImageTrace = imageTraceIndexes.has(index);
           return {
             userId,
             status: statuses[index % statuses.length],
@@ -1263,13 +1318,22 @@
             remainingTrace: remainingTraces[index % remainingTraces.length],
             ambiguousReason: ambiguousReasons[index % ambiguousReasons.length],
             sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
-            sharedTraces: Array.from({ length: 4 }, (_, offset) => sharedSurfaceTraces[(index + offset) % sharedSurfaceTraces.length]),
-            reportTraces: Array.from({ length: 3 }, (_, offset) => communityReports[(index + offset) % communityReports.length]),
-            laterTraces: Array.from({ length: 4 }, (_, offset) => laterViewerTraces[(index + offset) % laterViewerTraces.length]),
-            strongResidues: strongResidues[index % strongResidues.length],
-            memoryFlash: memoryFlashes[index % memoryFlashes.length],
-            avatar: avatarTypes[index % avatarTypes.length],
+            sharedTraces: pickMany(sharedSurfaceTraces, index, 4),
+            reportTraces: pickMany(communityReports, index, 3),
+            laterTraces: pickMany(laterViewerTraces, index, 4),
+            strongResidues: [
+              nicknameAvatarIndexes.has(index) ? `old name: ${oldNickname}` : `reply: ${commentFragment}`,
+              `old signature: ${oldSignature}`,
+              hasImageTrace ? 'image failed' : 'saved by 42',
+              index % 2 === 0 ? 'mentioned elsewhere' : 'one reply remains',
+            ],
+            memoryFlash: hasImageTrace ? 'image loaded once' : (nicknameAvatarIndexes.has(index) ? oldNickname : memoryFlashes[index % memoryFlashes.length]),
+            avatar: avatarForAccount(index, traceLevel),
             residue: residueFragments[index % residueFragments.length],
+            oldSignature,
+            commentFragment,
+            oldNickname,
+            hasImageTrace,
             damaged: index % 6 === 0 || index % 19 === 0,
           };
         });
@@ -1297,13 +1361,13 @@
         ];
         const partialOptions = [
           account.remainingTrace,
-          'saved by 42 users',
+          `saved by ${Math.max(42, Math.round(account.following / 8))} users`,
           'one reply remains',
-          'old signature: “don’t wai...”',
+          `old signature: “${account.oldSignature.slice(0, 9)}...”`,
           'mentioned elsewhere',
           'liked hidden content',
           'reply chain interrupted',
-          'old nickname: “_xiaoyu”',
+          `old nickname: “${account.oldNickname}”`,
         ];
         const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${smallRemainOptions[index % smallRemainOptions.length]}</span>` : '';
         const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${partialOptions[index % partialOptions.length]}</span>` : '';
@@ -1330,9 +1394,9 @@
         loadMoreButton.hidden = visible >= accounts.length;
       }
 
-      function brokenBlock(label, residue, wide = false) {
+      function brokenBlock(label, residue, wide = false, kind = 'text') {
         return `
-          <div class="broken-block ${wide ? 'wide' : ''}" tabindex="0">
+          <div class="broken-block ${wide ? 'wide' : ''} ${kind === 'image' ? 'image-trace' : 'no-image'}" tabindex="0">
             <div class="broken-image" aria-hidden="true"></div>
             <div class="missing-lines">
               <i></i>
@@ -1362,27 +1426,52 @@
       }
 
       function profileFragments(account) {
-        return [
-          '[deleted comment] “I just wanted to say…”',
-          `[failed image] liked by ${Math.max(216, account.likes).toLocaleString()}`, 
+        const possible = [
+          `[deleted comment] “${account.commentFragment}”`,
+          `[old signature] “${account.oldSignature}”`,
           `saved by ${Math.max(42, Math.round(account.following / 8))} users`,
-          account.avatar === 'broken' ? '[failed image]' : '[old signature] “don’t wait for…”',
           account.remainingTrace,
-          account.likes > 50000 ? 'liked content cannot be reconstructed' : account.sharedTrace,
-        ].slice(0, account.traceLevel + 3);
+          account.sharedTrace,
+          `${communityReports[(Number(account.userId.slice(-2)) + 2) % communityReports.length]}`,
+          `${laterViewerTraces[Number(account.userId.slice(-1)) % laterViewerTraces.length]}`,
+          'liked content cannot be reconstructed',
+          'original post gone, one reply remains',
+          'old avatar reset',
+        ];
+        if (account.hasImageTrace) {
+          possible.splice(2, 0, `[failed image] liked by ${Math.max(216, account.likes).toLocaleString()}`);
+        }
+        return possible.slice(0, Math.min(5, 3 + account.traceLevel));
+      }
+
+      function traceBlocks(account) {
+        const blocks = [
+          { label: '[deleted comment]', residue: account.commentFragment },
+          { label: '[old signature]', residue: `old signature: ${account.oldSignature}` },
+          { label: 'remaining follower relation', residue: `${Math.max(3, account.followers % 80)} users still follow` },
+          { label: 'report history', residue: account.reportTraces[0] },
+          { label: 'broken mention', residue: 'mentioned in another deleted profile' },
+          { label: 'saved count', residue: `saved by ${Math.max(42, Math.round(account.following / 8))} users` },
+          { label: 'last active record', residue: `last active ${account.lastActive} days ago` },
+        ];
+        if (account.hasImageTrace) {
+          blocks.splice(1, 0, { label: '[failed image]', residue: 'image loaded once', kind: 'image' });
+        }
+        return blocks.slice(0, Math.min(5, 3 + account.traceLevel));
       }
 
       function openModal(account, trigger) {
         lastFocusedCard = trigger;
         const profileTraceTexts = [
           `last active ${account.lastActive} days ago`,
-          'signature removed',
-          'profile image reset',
+          `old signature: ${account.oldSignature}`,
+          account.commentFragment,
           'one comment remains',
           'follow relation remains',
           'before it dis…',
         ];
         const fragments = profileFragments(account);
+        const blocks = traceBlocks(account);
 
         modalContent.innerHTML = `
           <div class="blank-banner"><span>banner area / cached surface</span></div>
@@ -1420,11 +1509,7 @@
             ${garbledLines.map((line) => `<p>${line}</p>`).join('')}
           </section>
           <section class="missing-grid" aria-label="missing profile contents">
-            ${brokenBlock('[failed image]', 'image loaded once')}
-            ${brokenBlock('[deleted comment]', '我只是说……')}
-            ${brokenBlock('[old signature]', 'old signature: 不想解释')}
-            ${brokenBlock('[failed image] liked by 216,303', 'liked by 216,303 before removal')}
-            ${brokenBlock('[broken caption] before it dis…', 'before it disappeared… one reply remained', true)}
+            ${blocks.map((block, blockIndex) => brokenBlock(block.label, block.residue, blockIndex === blocks.length - 1 && account.traceLevel === 3, block.kind)).join('')}
           </section>`;
 
         modal.hidden = false;
