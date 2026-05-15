@@ -532,52 +532,84 @@
       ];
 
       const rareClues = [
-        '68,391 followers remain', 'saved by 42 users', 'one reply remains', 'mentioned elsewhere', 'reply chain interrupted',
-        'followed by 83 users', 'tagged in another unavailable profile', 'old bio remains', 'previous name visible', 'one quote remains'
+        'still followed by 83 users', 'saved by 42 users after removal', 'mentioned in another unavailable profile',
+        'appears in archived reply chains', 'linked from removed content', 'one reply remains',
+        'profile viewed after disappearance', 'cached activity still detected'
       ];
 
-      const reasons = [
-        'reported after repeated arguments',
-        'multiple users reported hostile interactions',
-        'community moderation triggered after comment disputes',
-        'interaction history received unusual reports',
-        'removed after repeated conflicts',
-        'reported by users for aggressive exchanges',
-        'flagged after several escalating reply threads',
-        'reviewed after coordinated complaints from mutual contacts',
-        'restricted following hostile exchanges in comments',
-        'moderation action followed recurring disputes'
-      ];
+      const moderationReasons = {
+        argumentConflict: [
+          'reported after repeated arguments',
+          'discussion escalated repeatedly',
+          'conversation chain interrupted after reports',
+          'multiple users reported hostile interactions',
+          'removed following repeated disputes',
+          'interaction history received unusual reports',
+          'reported after escalating exchanges',
+          'community moderation triggered after repeated conflicts'
+        ],
+        contentVideo: [
+          'video removed for misleading edits',
+          'content restricted after repeated reposts',
+          'media record violated originality guidelines',
+          'video removed following authenticity review',
+          'content archived after policy review',
+          'upload history partially restricted',
+          'repeated uploads failed moderation checks',
+          'media visibility limited under content policy'
+        ],
+        advertisingSpam: [
+          'account flagged for repetitive promotional activity',
+          'content removed for excessive commercial posting',
+          'promotional material exceeded platform limits',
+          'repeated advertising behaviour detected',
+          'account visibility reduced after spam reports',
+          'external redirection activity triggered moderation',
+          'posting behaviour matched promotional patterns'
+        ],
+        communityGuidelines: [
+          'content visibility restricted under community values policy',
+          'account activity conflicted with platform guidelines',
+          'repeated content triggered community concern',
+          'interaction pattern reviewed following user complaints',
+          'content archived after moderation review',
+          'account received multiple value-related reports',
+          'activity visibility reduced after platform review'
+        ],
+        accountActivity: [
+          'profile activity pattern appeared abnormal',
+          'account reset following unusual activity',
+          'interaction history could not be reconstructed',
+          'activity archive remains incomplete',
+          'profile history partially retained',
+          'account activity entered review status',
+          'moderation review interrupted content visibility'
+        ]
+      };
+
+      const reasons = Object.values(moderationReasons).flat();
 
       const tracePool = [
+        'still followed by 83 users',
+        'saved by 42 users after removal',
+        'mentioned in another unavailable profile',
+        'appears in archived reply chains',
+        'linked from removed content',
         'one reply remains',
-        'followed by 83 users',
+        'profile viewed after disappearance',
+        'cached activity still detected',
         'old bio: “not deleting this”',
         'previous name: xiao_sleep',
-        'saved by 42 users',
-        'tagged in another unavailable profile',
         '“why did you suddenly—”',
         'comment chain interrupted',
-        'mentioned elsewhere',
-        '68,391 followers remain',
         'old bio: “back soon maybe”',
         'previous name: last_seen_04',
-        'one reaction remains',
-        'reply hidden by unavailable account',
-        'saved in a private list',
         'follow request still pending',
-        'old bio: “do not archive me”',
         'previous name: dear_static',
         '“you promised you would—”',
-        'liked by someone unavailable',
-        'shared once before removal',
         'profile mention has no destination',
-        'comment edited before disappearance',
-        'one mutual connection remains',
         'old bio: “tell them I tried”',
-        'previous name: roomtone',
-        'reply count does not match thread',
-        'bookmark survived deletion'
+        'previous name: roomtone'
       ];
 
       const avatarKinds = ['default', 'void', 'reset', 'broken'];
