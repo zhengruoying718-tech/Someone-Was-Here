@@ -1,0 +1,1231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Someone Was Here</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #000;
+        color: #e7e4de;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-width: 320px;
+        min-height: 100%;
+        margin: 0;
+        background: #000;
+      }
+
+      body {
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        content: "";
+        background:
+          radial-gradient(circle at 50% -12rem, rgba(120, 120, 116, 0.11), transparent 34rem),
+          linear-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+        background-size: auto, 100% 7px;
+        opacity: 0.72;
+      }
+
+      body.modal-open {
+        overflow: hidden;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .page-shell {
+        position: relative;
+        z-index: 1;
+        width: min(1500px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: clamp(1.5rem, 4vw, 4.5rem) clamp(0.9rem, 2.4vw, 2.5rem) 4rem;
+      }
+
+      .intro {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 0 0 clamp(2rem, 5vw, 4rem);
+        text-align: center;
+      }
+
+      .surface-label {
+        margin: 0 0 0.8rem;
+        color: #77746f;
+        font-size: 0.66rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: #f0eee9;
+        font-size: clamp(2.9rem, 7vw, 7rem);
+        font-weight: 320;
+        letter-spacing: -0.07em;
+        line-height: 0.92;
+        text-shadow: none;
+      }
+
+      .subtitle {
+        margin: 1rem 0 0;
+        color: #a8a39a;
+        font-size: clamp(1rem, 2vw, 1.3rem);
+      }
+
+      .archive-count {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin: 0 0 1rem;
+        padding: 0.15rem 0.1rem 0.75rem;
+        border-bottom: 1px solid rgba(211, 208, 199, 0.14);
+        color: #cbc7bf;
+        background: transparent;
+      }
+
+      .archive-count span {
+        font-size: 0.78rem;
+        font-weight: 500;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .archive-count em {
+        color: #77746f;
+        font-size: 0.74rem;
+        font-style: normal;
+      }
+
+      .avatar-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+        gap: 0.55rem;
+        align-items: stretch;
+      }
+
+      .avatar-card {
+        position: relative;
+        display: grid;
+        min-width: 0;
+        min-height: 9.1rem;
+        align-content: start;
+        justify-items: center;
+        padding: 0.85rem 0.45rem 0.7rem;
+        border: 1px solid rgba(213, 209, 198, 0.1);
+        border-radius: 0.45rem;
+        color: #c9c5bc;
+        background: rgba(232, 228, 218, 0.035);
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(5px);
+        animation: cardFadeIn 1100ms ease forwards;
+        transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+      }
+
+      .avatar-card::after {
+        width: 38%;
+        height: 1px;
+        margin-top: 0.5rem;
+        background: rgba(222, 218, 208, 0.14);
+        content: "";
+      }
+
+      .avatar-card:hover,
+      .avatar-card:focus-visible {
+        z-index: 5;
+        border-color: rgba(221, 216, 205, 0.25);
+        background: rgba(234, 230, 219, 0.06);
+        outline: none;
+        transform: translateY(-1px);
+      }
+
+      .avatar {
+        position: relative;
+        display: grid;
+        width: 3.2rem;
+        height: 3.2rem;
+        place-items: center;
+        overflow: hidden;
+        margin-bottom: 0.62rem;
+        border: 1px solid rgba(232, 228, 218, 0.28);
+        border-radius: 50%;
+        background: #6f6f6d;
+        box-shadow: none;
+      }
+
+      .avatar.large {
+        width: 7.2rem;
+        height: 7.2rem;
+        flex: 0 0 auto;
+        margin: 0;
+        border: 5px solid #eeeae1;
+        box-shadow: none;
+      }
+
+      .avatar svg {
+        width: 78%;
+        fill: rgba(235, 235, 232, 0.86);
+      }
+
+      .avatar svg path {
+        fill: none;
+        stroke: rgba(235, 235, 232, 0.86);
+        stroke-width: 7;
+        stroke-linecap: round;
+      }
+
+      .avatar.blank {
+        background: #2b2b2a;
+        border-style: dashed;
+      }
+
+      .avatar.blank::after {
+        width: 42%;
+        height: 42%;
+        border: 1px solid rgba(210, 207, 199, 0.25);
+        border-radius: 50%;
+        content: "";
+      }
+
+      .avatar.reset {
+        background: #858581;
+      }
+
+      .avatar.reset::after {
+        color: rgba(244, 242, 236, 0.88);
+        content: "↻";
+        font-size: 1.5rem;
+        line-height: 1;
+      }
+
+      .avatar.broken {
+        background: #555553;
+      }
+
+      .avatar.broken::before {
+        width: 46%;
+        height: 36%;
+        border: 1px solid rgba(244, 242, 236, 0.65);
+        border-radius: 0.15rem;
+        content: "";
+      }
+
+      .avatar.broken::after {
+        position: absolute;
+        width: 2.4rem;
+        height: 1px;
+        background: rgba(244, 242, 236, 0.64);
+        content: "";
+        transform: rotate(-42deg);
+      }
+
+      .avatar.icon {
+        background: #777874;
+      }
+
+      .avatar.icon::after {
+        width: 48%;
+        height: 48%;
+        border-radius: 50% 50% 44% 44%;
+        background: rgba(242, 240, 234, 0.78);
+        content: "";
+      }
+
+      .card-user,
+      .card-status,
+      .card-trace,
+      .card-number {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .card-number {
+        margin-bottom: 0.22rem;
+        color: #89857e;
+        font-size: 0.58rem;
+      }
+
+      .card-user {
+        color: #ddd8ce;
+        font-size: 0.66rem;
+        letter-spacing: -0.045em;
+      }
+
+      .card-status {
+        margin-top: 0.28rem;
+        color: #9a958c;
+        font-size: 0.58rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .card-trace {
+        width: 100%;
+        margin-top: 0.28rem;
+        color: #716d66;
+        font-size: 0.56rem;
+        letter-spacing: -0.025em;
+      }
+
+
+
+      .card-data,
+      .card-action,
+      .trace-percent {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .card-data {
+        margin-top: 0.26rem;
+        color: #9b968e;
+        font-size: 0.56rem;
+      }
+
+      .card-action {
+        width: 100%;
+        margin-top: 0.26rem;
+        color: #cfc8ba;
+        font-size: 0.56rem;
+        letter-spacing: -0.03em;
+      }
+
+      .strong-thumb {
+        width: 2.35rem;
+        height: 1.55rem;
+        margin: 0.36rem 0 0.1rem;
+        border: 1px solid rgba(203, 196, 184, 0.24);
+        border-radius: 0.18rem;
+        background:
+          linear-gradient(135deg, transparent 48%, rgba(176, 92, 84, 0.28) 49%, transparent 51%),
+          rgba(221, 215, 203, 0.08);
+      }
+
+      .strong-fragments {
+        display: grid;
+        gap: 0.12rem;
+        width: 100%;
+        margin-top: 0.28rem;
+        color: #b99b91;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.53rem;
+        line-height: 1.25;
+      }
+
+      .strong-fragments span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .trace-percent {
+        width: 100%;
+        margin-top: 0.34rem;
+        color: #68635d;
+        font-size: 0.54rem;
+        letter-spacing: -0.02em;
+      }
+
+      .avatar-card.trace-level-0 {
+        background: rgba(232, 228, 218, 0.024);
+      }
+
+      .avatar-card.trace-level-1 {
+        background: rgba(232, 228, 218, 0.038);
+      }
+
+      .avatar-card.trace-level-2 {
+        border-color: rgba(213, 209, 198, 0.16);
+        background: rgba(232, 228, 218, 0.052);
+      }
+
+      .avatar-card.trace-level-3 {
+        border-color: rgba(226, 220, 207, 0.36);
+        background: rgba(232, 228, 218, 0.105);
+        box-shadow: inset 0 0 0 1px rgba(169, 91, 83, 0.12);
+      }
+
+      .erased {
+        color: #a8a29a;
+        text-decoration: line-through;
+        text-decoration-color: rgba(169, 91, 83, 0.58);
+        filter: blur(0.18px);
+        opacity: 0.72;
+      }
+
+      .load-more-row {
+        display: flex;
+        justify-content: center;
+        padding: 2rem 0 0;
+      }
+
+      .load-more {
+        min-width: 12rem;
+        padding: 0.82rem 1.2rem;
+        border: 1px solid rgba(215, 210, 198, 0.22);
+        border-radius: 0.3rem;
+        color: #d9d4ca;
+        background: rgba(232, 228, 218, 0.035);
+        cursor: pointer;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .load-more:hover,
+      .load-more:focus-visible {
+        border-color: rgba(221, 216, 205, 0.34);
+        background: rgba(232, 228, 218, 0.06);
+        outline: none;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 50;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        background: rgba(0, 0, 0, 0.72);
+        backdrop-filter: blur(3px);
+      }
+
+      .modal-backdrop[hidden] {
+        display: none;
+      }
+
+      .profile-panel {
+        position: relative;
+        width: min(760px, 100%);
+        max-height: min(91vh, 900px);
+        overflow: auto;
+        border: 1px solid rgba(235, 230, 218, 0.38);
+        border-radius: 0.75rem;
+        color: #2d2d2b;
+        background: #ebe7de;
+        box-shadow: 0 18px 70px rgba(0, 0, 0, 0.62);
+      }
+
+      .close-button {
+        position: absolute;
+        top: 0.8rem;
+        right: 0.9rem;
+        z-index: 3;
+        width: 2.1rem;
+        height: 2.1rem;
+        border: 1px solid rgba(65, 61, 55, 0.18);
+        border-radius: 50%;
+        color: #4e4b46;
+        background: rgba(239, 236, 228, 0.82);
+        cursor: pointer;
+      }
+
+      .blank-banner {
+        display: flex;
+        height: 9.4rem;
+        align-items: end;
+        padding: 1rem 1.35rem;
+        border-bottom: 1px solid rgba(51, 49, 45, 0.08);
+        color: #9c978e;
+        background:
+          linear-gradient(90deg, rgba(177, 172, 163, 0.14) 0 1px, transparent 1px 100%),
+          #d5d1c8;
+        background-size: 3.5rem 100%;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.7rem;
+      }
+
+      .profile-header {
+        display: flex;
+        gap: 1rem;
+        align-items: end;
+        padding: 0 1.35rem 1.05rem;
+        margin-top: -3.1rem;
+      }
+
+      .eyebrow {
+        margin: 0 0 0.35rem;
+        color: #8c867d;
+        font-size: 0.66rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .profile-header h2 {
+        max-width: 28rem;
+        margin: 0;
+        overflow: hidden;
+        color: #302f2c;
+        font-size: clamp(1.35rem, 4vw, 2rem);
+        font-weight: 420;
+        letter-spacing: -0.05em;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .profile-number {
+        margin: 0.35rem 0 0;
+        color: #777168;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.74rem;
+      }
+
+      .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+        margin: 0 1.35rem 1rem;
+        padding: 0.85rem 0;
+        border-top: 1px solid rgba(56, 53, 48, 0.1);
+        border-bottom: 1px solid rgba(56, 53, 48, 0.1);
+      }
+
+      .profile-stats div {
+        display: grid;
+        gap: 0.2rem;
+        padding: 0.2rem 0.7rem;
+        text-align: center;
+      }
+
+      .profile-stats div + div {
+        border-left: 1px solid rgba(56, 53, 48, 0.1);
+      }
+
+      .profile-stats span {
+        color: #33312e;
+        font-size: 1.14rem;
+      }
+
+      .profile-stats small {
+        color: #8b857b;
+        font-size: 0.64rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .empty-profile-state {
+        display: grid;
+        min-height: 15rem;
+        place-items: center;
+        margin: 0 1.35rem 1rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.45rem;
+        background: #f2eee6;
+      }
+
+      .warning-row {
+        display: grid;
+        max-width: 24rem;
+        justify-items: center;
+        gap: 0.75rem;
+        padding: 2rem 1rem;
+        text-align: center;
+      }
+
+      .warning-row strong {
+        display: grid;
+        width: 2.5rem;
+        height: 2.5rem;
+        place-items: center;
+        border: 1px solid rgba(169, 68, 60, 0.42);
+        border-radius: 50%;
+        color: #a9443c;
+        background: rgba(169, 68, 60, 0.06);
+        font-size: 1.25rem;
+      }
+
+      .warning-row p {
+        margin: 0;
+        color: #6b514d;
+        line-height: 1.45;
+      }
+
+      .warning-title {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #3d3b37;
+        font-weight: 600;
+      }
+
+
+
+      .fragment-list {
+        margin: 0 1.35rem 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.45rem;
+        background: #f0ece4;
+      }
+
+      .fragment-list h3 {
+        margin: 0 0 0.7rem;
+        color: #4a4742;
+        font-size: 0.82rem;
+        font-weight: 520;
+      }
+
+      .fragment-list ul {
+        display: grid;
+        gap: 0.42rem;
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #6b665f;
+        font-size: 0.78rem;
+      }
+
+      .past-action-line {
+        margin: 0 0 0.85rem;
+        color: #7d5c56;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.7rem;
+      }
+
+      .shared-surface {
+        margin: 0 1.35rem 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.45rem;
+        background: #eee9df;
+      }
+
+      .shared-surface h3 {
+        margin: 0 0 0.7rem;
+        color: #4a4742;
+        font-size: 0.82rem;
+        font-weight: 520;
+      }
+
+      .shared-surface ul {
+        display: grid;
+        gap: 0.42rem;
+        margin: 0;
+        padding-left: 1.1rem;
+        color: #7d5c56;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.68rem;
+      }
+
+      .trace-field {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(2rem, 1fr));
+        gap: 0.45rem;
+        padding: 0 1.35rem 1rem;
+      }
+
+      .trace-point {
+        position: relative;
+        display: grid;
+        min-height: 2.35rem;
+        place-items: center;
+        border: 1px dashed rgba(84, 79, 71, 0.16);
+        border-radius: 0.35rem;
+        background: rgba(255, 255, 255, 0.28);
+        outline: none;
+      }
+
+      .trace-point::before {
+        width: 0.28rem;
+        height: 0.28rem;
+        border-radius: 50%;
+        background: #9d968c;
+        opacity: 0.62;
+        content: "";
+      }
+
+      .trace-copy {
+        position: absolute;
+        bottom: 124%;
+        left: 50%;
+        z-index: 5;
+        width: max-content;
+        max-width: min(18rem, 78vw);
+        padding: 0.42rem 0.54rem;
+        border: 1px solid rgba(84, 79, 71, 0.13);
+        border-radius: 0.3rem;
+        color: #4c4944;
+        background: rgba(247, 244, 237, 0.96);
+        box-shadow: 0 8px 18px rgba(36, 33, 28, 0.12);
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.68rem;
+        opacity: 0;
+        pointer-events: none;
+        transform: translate(-50%, 0.25rem);
+      }
+
+      .trace-point:hover .trace-copy,
+      .trace-point:focus .trace-copy {
+        animation: traceBrief 1.65s ease both;
+      }
+
+      .garbled-area {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.5rem;
+        padding: 0 1.35rem 1rem;
+      }
+
+      .garbled-area p {
+        margin: 0;
+        padding: 0.65rem 0.75rem;
+        border: 1px solid rgba(60, 57, 52, 0.07);
+        border-radius: 0.35rem;
+        color: #9b958b;
+        background: #eeeae1;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.68rem;
+      }
+
+      .missing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.7rem;
+        padding: 0 1.35rem 1.35rem;
+      }
+
+      .broken-block {
+        position: relative;
+        display: grid;
+        gap: 0.65rem;
+        min-height: 10.5rem;
+        padding: 0.75rem;
+        border: 1px solid rgba(60, 57, 52, 0.08);
+        border-radius: 0.35rem;
+        background: #f4f1ea;
+      }
+
+
+
+      .residue-copy {
+        position: absolute;
+        top: 1.2rem;
+        right: 0.95rem;
+        left: 0.95rem;
+        z-index: 2;
+        display: grid;
+        min-height: 4.8rem;
+        place-items: center;
+        color: #8b5c57;
+        background: rgba(244, 240, 231, 0.86);
+        border: 1px solid rgba(139, 92, 87, 0.12);
+        border-radius: 0.25rem;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.66rem;
+        line-height: 1.35;
+        text-align: center;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .broken-block:hover .residue-copy,
+      .broken-block:focus .residue-copy {
+        animation: residueFlash 0.8s ease both;
+      }
+
+      .broken-block:hover .broken-image,
+      .broken-block:focus .broken-image {
+        animation: imageResidue 0.8s ease both;
+      }
+
+      .broken-block.wide {
+        grid-column: span 2;
+      }
+
+      .broken-image {
+        display: grid;
+        min-height: 6.4rem;
+        place-items: center;
+        border-radius: 0.25rem;
+        background:
+          linear-gradient(135deg, transparent 49%, rgba(120, 113, 103, 0.22) 50%, transparent 51%),
+          #ded9cf;
+      }
+
+      .broken-image::after {
+        width: 1.45rem;
+        height: 1.45rem;
+        border: 1px solid rgba(91, 86, 78, 0.24);
+        border-radius: 0.2rem;
+        content: "";
+      }
+
+      .missing-lines {
+        display: grid;
+        align-content: center;
+        gap: 0.45rem;
+      }
+
+      .missing-lines i {
+        display: block;
+        height: 0.45rem;
+        border-radius: 999px;
+        background: rgba(121, 115, 106, 0.15);
+      }
+
+      .missing-lines i:nth-child(2) {
+        width: 62%;
+      }
+
+      .missing-lines small {
+        color: #837d73;
+        font-family: "SFMono-Regular", Consolas, monospace;
+        font-size: 0.64rem;
+      }
+
+      @keyframes cardFadeIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes traceBrief {
+        0% {
+          opacity: 0;
+          transform: translate(-50%, 0.25rem);
+        }
+        16%,
+        54% {
+          opacity: 0.94;
+          transform: translate(-50%, 0);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(-50%, -0.08rem);
+        }
+      }
+
+      @keyframes residueFlash {
+        0%,
+        100% {
+          opacity: 0;
+          filter: blur(1px);
+        }
+        18%,
+        62% {
+          opacity: 0.95;
+          filter: blur(0);
+        }
+      }
+
+      @keyframes imageResidue {
+        0%,
+        100% {
+          background:
+            linear-gradient(135deg, transparent 49%, rgba(120, 113, 103, 0.22) 50%, transparent 51%),
+            #ded9cf;
+        }
+        24%,
+        58% {
+          background:
+            linear-gradient(135deg, transparent 49%, rgba(169, 91, 83, 0.22) 50%, transparent 51%),
+            #e9e3d7;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .avatar-grid {
+          grid-template-columns: repeat(auto-fill, minmax(86px, 1fr));
+        }
+
+        .archive-count {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .profile-header {
+          align-items: center;
+        }
+
+        .trace-field {
+          grid-template-columns: repeat(3, minmax(2rem, 1fr));
+        }
+
+        .garbled-area,
+        .missing-grid,
+        .profile-stats {
+          grid-template-columns: 1fr;
+        }
+
+        .broken-block.wide {
+          grid-column: auto;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-shell {
+          padding-inline: 0.55rem;
+        }
+
+        .avatar-grid {
+          grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+          gap: 0.35rem;
+        }
+
+        .avatar-card {
+          min-height: 8.5rem;
+          padding-inline: 0.25rem;
+        }
+
+        .avatar {
+          width: 2.7rem;
+          height: 2.7rem;
+        }
+
+        .avatar.large {
+          width: 5.8rem;
+          height: 5.8rem;
+        }
+
+        .profile-header,
+        .trace-field,
+        .garbled-area,
+        .missing-grid {
+          padding-inline: 1rem;
+        }
+
+        .profile-stats,
+        .empty-profile-state,
+        .fragment-list {
+          margin-inline: 1rem;
+        }
+      }
+        </style>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="surface-label">fictional unavailable account archive</p>
+        <h1 id="page-title">Someone was here.</h1>
+        <p class="subtitle">This account is no longer available.</p>
+      </section>
+
+      <section class="archive-count" aria-live="polite">
+        <span>1000 unavailable accounts</span>
+        <em id="visible-count">120 currently visible</em>
+      </section>
+
+      <section class="avatar-grid" id="avatar-grid" aria-label="Unavailable account avatar grid"></section>
+
+      <div class="load-more-row">
+        <button class="load-more" id="load-more" type="button">load more traces</button>
+      </div>
+    </main>
+
+    <div class="modal-backdrop" id="modal" hidden>
+      <aside class="profile-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <button class="close-button" id="close-modal" type="button" aria-label="Close incomplete profile">×</button>
+        <div id="modal-content"></div>
+      </aside>
+    </div>
+
+    <script>
+      const ACCOUNT_COUNT = 1000;
+      const INITIAL_VISIBLE = 120;
+      const LOAD_STEP = 120;
+
+      const ambiguousReasons = [
+        'content unavailable under platform rules',
+        'removed after reports',
+        'restricted after repeated activity',
+        'account reset following abnormal behaviour',
+        'previous posts cannot be reconstructed',
+        'traces remain in cached relations',
+      ];
+
+      const statuses = ['unavailable', 'reset', 'hidden', 'restricted', 'not found'];
+      const avatarTypes = ['silhouette', 'blank', 'reset', 'broken', 'silhouette', 'blank', 'icon'];
+      const pastActions = [
+        'replied to a deleted post',
+        'changed avatar',
+        'sent a comment',
+        'liked hidden content',
+        'followed another unavailable user',
+        'posted an image',
+        'replied before deletion',
+        'shared a post',
+        'edited signature',
+        'was mentioned by someone else',
+      ];
+      const remainingTraces = [
+        'one comment remains',
+        'old avatar reset',
+        'liked post missing',
+        'reply fragment left',
+        'failed image remains',
+        'signature partially visible',
+        'follow relation remains',
+        'saved count remains',
+        'mention link broken',
+        'cached relation remains',
+      ];
+      const residueFragments = [
+        'I was just…',
+        'last reply: 03:17',
+        'old signature: 不想解释',
+        'image loaded once',
+        'liked by 216,303 before removal',
+        'reply remained after deletion',
+        'someone saved this before it disappeared',
+        'mentioned in another broken profile',
+        'the post is gone, but the relation remains',
+      ];
+      const sharedSurfaceTraces = [
+        '3 people still follow this unavailable account',
+        'one reply remains but the original post is gone',
+        'saved by 42 users',
+        'mentioned in another deleted profile',
+        'appears in 12 broken links',
+      ];
+      const strongResidues = [
+        ['old name: 小…', 'reply: 我只是…', 'old signature: 不…', 'image failed'],
+        ['old name: v_…', 'reply: why did…', 'old signature: —', 'saved by 42'],
+        ['old name: 旧…', 'reply: before…', 'old signature: 不想…', 'mentioned elsewhere'],
+        ['old name: visitor…', 'reply: 我只是…', 'old signature: hidden', 'image failed'],
+      ];
+      const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
+
+      const grid = document.getElementById('avatar-grid');
+      const visibleCount = document.getElementById('visible-count');
+      const loadMoreButton = document.getElementById('load-more');
+      const modal = document.getElementById('modal');
+      const modalContent = document.getElementById('modal-content');
+      const closeModalButton = document.getElementById('close-modal');
+      let visible = INITIAL_VISIBLE;
+      let lastFocusedCard = null;
+
+      function seededRandom(seed) {
+        const x = Math.sin(seed * 999.91) * 10000;
+        return x - Math.floor(x);
+      }
+
+      function randomInt(seed, min, max) {
+        return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
+      }
+
+      function pickTraceLevel(index) {
+        if (index % 50 === 13) return 3;
+        const value = seededRandom(index + 301);
+        if (value < 0.7) return 0;
+        if (value < 0.9) return 1;
+        return 2;
+      }
+
+      function buildAccounts() {
+        return Array.from({ length: ACCOUNT_COUNT }, (_, index) => {
+          const userId = String(randomInt(index + 11, 1000000000, 9999999999));
+          const traceLevel = pickTraceLevel(index);
+          const followers = randomInt(index + 31, 0, 98000);
+          const following = randomInt(index + 47, 0, 1200);
+          const likes = randomInt(index + 63, 0, 240000);
+          const hiddenPosts = randomInt(index + 95, 0, 47);
+          return {
+            userId,
+            status: statuses[index % statuses.length],
+            followers,
+            following,
+            likes,
+            lastActive: randomInt(index + 79, 4, 1300),
+            hiddenPosts,
+            traceLevel,
+            tracePercent: randomInt(index + 127, 3, 89),
+            pastAction: pastActions[index % pastActions.length],
+            remainingTrace: remainingTraces[index % remainingTraces.length],
+            ambiguousReason: ambiguousReasons[index % ambiguousReasons.length],
+            sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
+            sharedTraces: Array.from({ length: 4 }, (_, offset) => sharedSurfaceTraces[(index + offset) % sharedSurfaceTraces.length]),
+            strongResidues: strongResidues[index % strongResidues.length],
+            avatar: avatarTypes[index % avatarTypes.length],
+            residue: residueFragments[index % residueFragments.length],
+            damaged: index % 6 === 0 || index % 19 === 0,
+          };
+        });
+      }
+
+      const accounts = buildAccounts();
+
+      function avatarMarkup(type, large = false) {
+        const classes = ['avatar', type, large ? 'large' : ''].filter(Boolean).join(' ');
+        const silhouette = `
+          <svg viewBox="0 0 80 80" aria-hidden="true">
+            <circle cx="40" cy="29" r="13"></circle>
+            <path d="M17 68c3.5-16 14.5-25 23-25s19.5 9 23 25"></path>
+          </svg>`;
+        return `<div class="${classes}" aria-hidden="true">${type === 'silhouette' ? silhouette : ''}</div>`;
+      }
+
+      function cardMarkup(account, index) {
+        const erased = account.damaged ? 'erased' : '';
+        const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${account.likes.toLocaleString()} likes remained</span>` : '';
+        const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${account.remainingTrace}</span>` : '';
+        const actionLine = account.traceLevel === 3 ? `<span class="card-action">once ${account.pastAction}</span>` : '';
+        const strongLine = account.traceLevel === 3
+          ? `<span class="strong-thumb" aria-hidden="true"></span><span class="strong-fragments">${account.strongResidues.map((fragment) => `<span>${fragment}</span>`).join('')}</span>`
+          : '';
+        return `
+          <button class="avatar-card trace-level-${account.traceLevel}" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open incomplete profile for User_${account.userId}">
+            ${avatarMarkup(account.avatar)}
+            <span class="card-number">No.${String(index + 1).padStart(4, '0')}</span>
+            <span class="card-user ${erased}">User_${account.userId}</span>
+            ${dataLine}
+            ${traceLine}
+            ${actionLine}
+            ${strongLine}
+            <span class="trace-percent">trace remaining: ${account.tracePercent}%</span>
+          </button>`;
+      }
+
+      function renderGrid() {
+        grid.innerHTML = accounts.slice(0, visible).map(cardMarkup).join('');
+        visibleCount.textContent = `${visible} currently visible`;
+        loadMoreButton.hidden = visible >= accounts.length;
+      }
+
+      function brokenBlock(label, residue, wide = false) {
+        return `
+          <div class="broken-block ${wide ? 'wide' : ''}" tabindex="0">
+            <div class="broken-image" aria-hidden="true"></div>
+            <div class="missing-lines">
+              <i></i>
+              <i></i>
+              <small>${label}</small>
+            </div>
+            <span class="residue-copy">${residue}</span>
+          </div>`;
+      }
+
+      function tracePoint(text) {
+        return `<span class="trace-point" tabindex="0"><span class="trace-copy">${text}</span></span>`;
+      }
+
+      function sharedSurfaceList(account) {
+        return `<section class="shared-surface" aria-label="shared surface traces">
+          <h3>Shared surface traces</h3>
+          <ul>${account.sharedTraces.map((trace) => `<li>${trace}</li>`).join('')}</ul>
+        </section>`;
+      }
+
+      function profileFragments(account) {
+        return [
+          '1 comment fragment',
+          `${Math.max(1, account.hiddenPosts)} hidden posts`,
+          `${Math.max(3, Math.round(account.following / 8))} saved relations`,
+          account.avatar === 'broken' ? '1 failed image' : 'old signature partially visible',
+          account.remainingTrace,
+          account.likes > 50000 ? 'liked content cannot be reconstructed' : account.sharedTrace,
+        ].slice(0, account.traceLevel + 3);
+      }
+
+      function openModal(account, trigger) {
+        lastFocusedCard = trigger;
+        const profileTraceTexts = [
+          `last active ${account.lastActive} days ago`,
+          'signature removed',
+          'profile image reset',
+          'one comment remains',
+          'follow relation remains',
+          'content deleted',
+        ];
+        const fragments = profileFragments(account);
+
+        modalContent.innerHTML = `
+          <div class="blank-banner"><span>banner unavailable · previous surface retained</span></div>
+          <header class="profile-header">
+            ${avatarMarkup(account.avatar, true)}
+            <div>
+              <p class="eyebrow">Incomplete Profile</p>
+              <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">User_${account.userId}</h2>
+              <p class="profile-number">user ID: ${account.userId}</p>
+              <p class="past-action-line">past action sensed: once ${account.pastAction}</p>
+            </div>
+          </header>
+          <section class="profile-stats" aria-label="Unavailable profile counts">
+            <div><span>${account.followers.toLocaleString()}</span><small>followers</small></div>
+            <div><span>${account.following.toLocaleString()}</span><small>following</small></div>
+            <div><span>${account.likes.toLocaleString()}</span><small>likes</small></div>
+          </section>
+          <section class="empty-profile-state" aria-label="unavailable account state">
+            <div class="warning-row">
+              <strong aria-hidden="true">!</strong>
+              <p><span class="warning-title">This account is unavailable</span>Content cannot be viewed · ${account.ambiguousReason}</p>
+              <em>Trace remaining: ${account.tracePercent}%</em>
+            </div>
+          </section>
+          <section class="fragment-list" aria-label="fragments left before disappearing">
+            <h3>Before disappearing, this account left:</h3>
+            <ul>${fragments.map((fragment) => `<li>${fragment}</li>`).join('')}</ul>
+          </section>
+          ${sharedSurfaceList(account)}
+          <section class="trace-field" aria-label="hover areas with temporary traces">
+            ${profileTraceTexts.map(tracePoint).join('')}
+          </section>
+          <section class="garbled-area" aria-label="damaged account text">
+            ${garbledLines.map((line) => `<p>${line}</p>`).join('')}
+          </section>
+          <section class="missing-grid" aria-label="missing profile contents">
+            ${brokenBlock('profile image failed to load', 'image loaded once')}
+            ${brokenBlock('grey missing content block', '我只是说……')}
+            ${brokenBlock('deleted signature', 'old signature: 不想解释')}
+            ${brokenBlock(`${account.hiddenPosts} hidden posts`, 'liked by 216,303 before removal')}
+            ${brokenBlock('content deleted', 'before it disappeared… one reply remained', true)}
+          </section>`;
+
+        modal.hidden = false;
+        document.body.classList.add('modal-open');
+        closeModalButton.focus();
+      }
+
+      function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove('modal-open');
+        if (lastFocusedCard) lastFocusedCard.focus();
+      }
+
+      grid.addEventListener('click', (event) => {
+        const card = event.target.closest('.avatar-card');
+        if (!card) return;
+        openModal(accounts[Number(card.dataset.index)], card);
+      });
+
+      loadMoreButton.addEventListener('click', () => {
+        visible = Math.min(visible + LOAD_STEP, accounts.length);
+        renderGrid();
+      });
+
+      closeModalButton.addEventListener('click', closeModal);
+      modal.addEventListener('click', (event) => {
+        if (event.target === modal) closeModal();
+      });
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && !modal.hidden) closeModal();
+      });
+
+      renderGrid();
+    </script>
+  </body>
+</html>
