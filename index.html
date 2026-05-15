@@ -3,1542 +3,716 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Someone Was Here</title>
+    <title>Someone was here.</title>
     <style>
       :root {
         color-scheme: dark;
+        --bg: #000;
+        --ink: #e7e3dc;
+        --muted: #8f8a80;
+        --faint: #4e4a44;
+        --line: rgba(231, 227, 220, 0.13);
+        --panel: rgba(255, 255, 255, 0.035);
+        --panel-strong: rgba(255, 255, 255, 0.07);
         font-family:
           Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #000;
-        color: #e7e4de;
+        background: var(--bg);
+        color: var(--ink);
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
       }
 
       * {
         box-sizing: border-box;
       }
 
-      html,
-      body {
+      html {
         min-width: 320px;
         min-height: 100%;
-        margin: 0;
         background: #000;
       }
 
       body {
+        min-width: 320px;
         min-height: 100vh;
+        margin: 0;
         overflow-x: hidden;
-      }
-
-      body::before {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        content: "";
         background:
-          radial-gradient(circle at 50% -12rem, rgba(120, 120, 116, 0.11), transparent 34rem),
-          linear-gradient(rgba(255, 255, 255, 0.014) 1px, transparent 1px);
-        background-size: auto, 100% 7px;
-        opacity: 0.72;
+          radial-gradient(circle at 50% -18rem, rgba(188, 181, 166, 0.12), transparent 42rem),
+          linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+          #000;
+        background-size: auto, 100% 8px, auto;
       }
 
       body.modal-open {
         overflow: hidden;
       }
 
+      body::after {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        content: "";
+        background: radial-gradient(circle at center, transparent 0 42%, rgba(0, 0, 0, 0.78) 100%);
+      }
+
       button {
         font: inherit;
       }
 
-      .page-shell {
+      .page {
         position: relative;
         z-index: 1;
         width: min(1500px, 100%);
-        min-height: 100vh;
+        min-height: 190vh;
         margin: 0 auto;
-        padding: clamp(1.5rem, 4vw, 4.5rem) clamp(0.9rem, 2.4vw, 2.5rem) 4rem;
+        padding: clamp(1.4rem, 3vw, 4rem) clamp(0.85rem, 2.3vw, 2.2rem) 14rem;
       }
 
       .intro {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 0 0 clamp(2rem, 5vw, 4rem);
+        display: grid;
+        min-height: 42vh;
+        place-items: center;
         text-align: center;
       }
 
-      .surface-label {
+      .intro-inner {
+        max-width: 760px;
+      }
+
+      .label,
+      .eyebrow {
         margin: 0 0 0.8rem;
-        color: #77746f;
-        font-size: 0.66rem;
-        letter-spacing: 0.18em;
+        color: #6f6a61;
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.22em;
         text-transform: uppercase;
       }
 
       h1 {
         margin: 0;
-        color: #f0eee9;
-        font-size: clamp(2.9rem, 7vw, 7rem);
-        font-weight: 320;
-        letter-spacing: -0.07em;
-        line-height: 0.92;
-        text-shadow: none;
+        color: #f0ece4;
+        font-size: clamp(3.25rem, 10vw, 9.8rem);
+        font-weight: 270;
+        letter-spacing: -0.086em;
+        line-height: 0.86;
       }
 
       .subtitle {
-        margin: 1rem 0 0;
-        color: #a8a39a;
-        font-size: clamp(1rem, 2vw, 1.3rem);
+        max-width: 38rem;
+        margin: 1.35rem auto 0;
+        color: #969086;
+        font-size: clamp(1rem, 1.7vw, 1.28rem);
+        line-height: 1.7;
       }
 
-      .archive-count {
+      .archive-bar {
         display: flex;
-        align-items: center;
+        align-items: end;
         justify-content: space-between;
         gap: 1rem;
-        margin: 0 0 1rem;
-        padding: 0.15rem 0.1rem 0.75rem;
-        border-bottom: 1px solid rgba(211, 208, 199, 0.14);
-        color: #cbc7bf;
-        background: transparent;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--line);
       }
 
-      .archive-count span {
+      .archive-bar p {
+        margin: 0;
+        color: #c8c2b8;
         font-size: 0.78rem;
-        font-weight: 500;
-        letter-spacing: 0.08em;
+        font-weight: 600;
+        letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
-      .archive-count em {
-        color: #77746f;
-        font-size: 0.74rem;
-        font-style: normal;
+      .archive-bar span {
+        color: #5e5951;
+        font-size: 0.78rem;
       }
 
-      .avatar-grid {
+      .profile-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
-        gap: 0.55rem;
-        align-items: stretch;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 0.72rem;
       }
 
-      .avatar-card {
+      .profile-card {
         position: relative;
         display: grid;
-        min-width: 0;
-        min-height: 13.6rem;
+        min-height: 15.25rem;
         align-content: start;
         justify-items: center;
-        padding: 0.85rem 0.45rem 0.7rem;
-        border: 1px solid rgba(213, 209, 198, 0.1);
-        border-radius: 0.45rem;
-        color: #c9c5bc;
-        background: rgba(232, 228, 218, 0.035);
+        padding: 1rem 0.72rem 0.85rem;
+        border: 1px solid rgba(231, 227, 220, 0.095);
+        border-radius: 0.35rem;
+        color: #c6c0b6;
+        background: var(--panel);
         cursor: pointer;
         opacity: 0;
-        transform: translateY(5px);
-        animation: cardFadeIn 1100ms ease forwards;
+        transform: translateY(8px);
+        animation: arrive 900ms ease forwards;
         transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
       }
 
-      .avatar-card::after {
-        width: 38%;
-        height: 1px;
-        margin-top: 0.5rem;
-        background: rgba(222, 218, 208, 0.14);
+      .profile-card::before {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
         content: "";
+        background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent 36%);
+        opacity: 0.7;
       }
 
-      .avatar-card:hover,
-      .avatar-card:focus-visible {
-        z-index: 5;
-        border-color: rgba(221, 216, 205, 0.25);
-        background: rgba(234, 230, 219, 0.06);
+      .profile-card:hover,
+      .profile-card:focus-visible {
+        z-index: 2;
+        border-color: rgba(231, 227, 220, 0.28);
+        background: rgba(255, 255, 255, 0.06);
         outline: none;
-        transform: translateY(-1px);
+        transform: translateY(-2px);
       }
 
       .avatar {
         position: relative;
         display: grid;
-        width: 5.15rem;
-        height: 5.15rem;
+        width: 6.7rem;
+        height: 6.7rem;
         place-items: center;
         overflow: hidden;
-        margin-bottom: 0.62rem;
-        border: 1px solid rgba(232, 228, 218, 0.28);
+        margin-bottom: 0.85rem;
+        border: 1px solid rgba(231, 227, 220, 0.2);
         border-radius: 50%;
-        background: #6f6f6d;
-        box-shadow: none;
+        background:
+          radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.12), transparent 0.8rem),
+          linear-gradient(145deg, #78766f, #2a2926 65%, #151413);
+        box-shadow: inset 0 0 0 0.45rem rgba(0, 0, 0, 0.1);
       }
 
       .avatar.large {
-        width: 9.4rem;
-        height: 9.4rem;
+        width: clamp(7.8rem, 18vw, 10.5rem);
+        height: clamp(7.8rem, 18vw, 10.5rem);
         flex: 0 0 auto;
         margin: 0;
-        border: 5px solid #eeeae1;
-        box-shadow: none;
+        border-width: 4px;
+        border-color: #d7d1c5;
       }
 
       .avatar svg {
-        width: 78%;
-        fill: rgba(235, 235, 232, 0.86);
+        width: 74%;
       }
 
-      .avatar svg path {
+      .avatar path,
+      .avatar circle {
         fill: none;
-        stroke: rgba(235, 235, 232, 0.86);
+        stroke: rgba(239, 235, 226, 0.74);
         stroke-width: 7;
         stroke-linecap: round;
       }
 
-      .avatar.blank {
-        background: #2b2b2a;
+      .avatar[data-kind="void"] {
         border-style: dashed;
+        background: #191816;
       }
 
-      .avatar.blank::after {
+      .avatar[data-kind="void"]::after {
         width: 42%;
         height: 42%;
-        border: 1px solid rgba(210, 207, 199, 0.25);
+        border: 1px dashed rgba(239, 235, 226, 0.23);
         border-radius: 50%;
         content: "";
       }
 
-      .avatar.reset {
-        background: #858581;
-      }
-
-      .avatar.reset::after {
-        color: rgba(244, 242, 236, 0.88);
+      .avatar[data-kind="reset"]::after {
+        color: rgba(239, 235, 226, 0.78);
         content: "↻";
-        font-size: 1.5rem;
-        line-height: 1;
+        font-size: 2.35rem;
+        font-weight: 200;
       }
 
-      .avatar.broken {
-        background: #555553;
-      }
-
-      .avatar.broken::before {
-        width: 46%;
-        height: 36%;
-        border: 1px solid rgba(244, 242, 236, 0.65);
-        border-radius: 0.15rem;
+      .avatar[data-kind="broken"]::before {
+        width: 42%;
+        height: 32%;
+        border: 1px solid rgba(239, 235, 226, 0.52);
+        border-radius: 0.18rem;
         content: "";
       }
 
-      .avatar.broken::after {
+      .avatar[data-kind="broken"]::after {
         position: absolute;
-        width: 2.4rem;
+        width: 3.2rem;
         height: 1px;
-        background: rgba(244, 242, 236, 0.64);
+        background: rgba(239, 235, 226, 0.5);
         content: "";
         transform: rotate(-42deg);
       }
 
-      .avatar.icon {
-        background: #777874;
-      }
-
-
-      .avatar.failed,
-      .avatar.partial,
-      .avatar.cached,
-      .avatar.old,
-      .avatar.double,
-      .avatar.half,
-      .avatar.ghost {
-        background: #5f605d;
-      }
-
-      .avatar.failed::before,
-      .avatar.partial::before {
-        width: 54%;
-        height: 40%;
-        border: 1px solid rgba(244, 242, 236, 0.58);
-        border-radius: 0.16rem;
-        content: "";
-      }
-
-      .avatar.failed::after {
-        position: absolute;
-        width: 3.2rem;
-        height: 1px;
-        background: rgba(244, 242, 236, 0.58);
-        content: "";
-        transform: rotate(-38deg);
-      }
-
-      .avatar.partial::after {
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(90deg, rgba(238, 232, 220, 0.28), transparent 48%);
-        content: "";
-      }
-
-      .avatar.cached::after,
-      .avatar.old::after {
-        color: rgba(244, 242, 236, 0.72);
-        content: "_";
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.62rem;
-      }
-
-      .avatar.double::before,
-      .avatar.ghost::before {
-        position: absolute;
-        width: 48%;
-        height: 48%;
-        border-radius: 50%;
-        background: rgba(244, 242, 236, 0.38);
-        content: "";
-        transform: translate(-0.28rem, -0.12rem);
-      }
-
-      .avatar.double::after,
-      .avatar.ghost::after,
-      .avatar.half::after {
-        position: absolute;
-        width: 48%;
-        height: 48%;
-        border-radius: 50%;
-        background: rgba(244, 242, 236, 0.3);
-        content: "";
-        transform: translate(0.28rem, 0.14rem);
-      }
-
-      .avatar.half {
-        opacity: 0.58;
-      }
-
-      .avatar.icon::after {
-        width: 48%;
-        height: 48%;
-        border-radius: 50% 50% 44% 44%;
-        background: rgba(242, 240, 234, 0.78);
-        content: "";
-      }
-
-      .card-user,
-      .card-status,
-      .card-trace,
-      .card-number {
-        display: block;
-        max-width: 100%;
+      .profile-id {
+        width: 100%;
+        margin: 0;
         overflow: hidden;
-        font-family: "SFMono-Regular", Consolas, monospace;
+        color: #e0dbd1;
+        font-size: 0.85rem;
+        text-align: center;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
 
-      .card-number {
-        margin-bottom: 0.22rem;
-        color: #89857e;
-        font-size: 0.58rem;
-      }
-
-      .card-user {
-        color: #ddd8ce;
-        font-size: 0.66rem;
-        letter-spacing: -0.045em;
-      }
-
-      .card-status {
-        margin-top: 0.28rem;
-        color: #9a958c;
-        font-size: 0.58rem;
+      .trace-percent {
+        margin: 0.36rem 0 0;
+        color: #777168;
+        font-size: 0.72rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
 
-      .card-trace {
+      .rare-clue {
         width: 100%;
-        margin-top: 0.28rem;
-        color: #716d66;
-        font-size: 0.56rem;
-        letter-spacing: -0.025em;
-      }
-
-
-
-      .card-data,
-      .card-action,
-      .trace-percent {
-        display: block;
-        max-width: 100%;
-        overflow: hidden;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .card-data {
-        margin-top: 0.26rem;
-        color: #9b968e;
-        font-size: 0.56rem;
-      }
-
-      .card-action {
-        width: 100%;
-        margin-top: 0.26rem;
-        color: #cfc8ba;
-        font-size: 0.56rem;
-        letter-spacing: -0.03em;
-      }
-
-      .strong-thumb {
-        width: 2.35rem;
-        height: 1.55rem;
-        margin: 0.36rem 0 0.1rem;
-        border: 1px solid rgba(203, 196, 184, 0.24);
-        border-radius: 0.18rem;
-        background:
-          linear-gradient(135deg, transparent 48%, rgba(176, 92, 84, 0.28) 49%, transparent 51%),
-          rgba(221, 215, 203, 0.08);
-      }
-
-      .strong-fragments {
-        display: grid;
-        gap: 0.12rem;
-        width: 100%;
-        margin-top: 0.28rem;
-        color: #b99b91;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.53rem;
-        line-height: 1.25;
-      }
-
-      .strong-fragments span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .card-memory {
-        position: absolute;
-        inset: 0.45rem;
-        display: grid;
-        place-items: end center;
-        padding-bottom: 0.65rem;
-        color: #d8c9bd;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.58rem;
-        line-height: 1.3;
+        min-height: 2.3rem;
+        margin: 0.95rem 0 0;
+        padding-top: 0.72rem;
+        border-top: 1px solid rgba(231, 227, 220, 0.09);
+        color: #a9a197;
+        font-size: 0.76rem;
+        line-height: 1.35;
         text-align: center;
-        opacity: 0;
-        pointer-events: none;
       }
 
-      .avatar-card:hover .card-memory,
-      .avatar-card:focus-visible .card-memory {
-        animation: residueFlash 0.85s ease both 120ms;
-      }
-
-      .avatar-card:hover .card-user,
-      .avatar-card:focus-visible .card-user {
-        animation: onePixelShift 0.85s ease both;
-      }
-
-      .avatar-card.trace-level-3 .avatar::before {
-        position: absolute;
-        inset: 0.35rem;
-        border-radius: 50%;
-        background: rgba(238, 231, 218, 0.18);
-        content: "";
-        opacity: 0.42;
-      }
-
-      .avatar-card.trace-level-3:hover .avatar::before,
-      .avatar-card.trace-level-3:focus-visible .avatar::before {
-        animation: ghostPass 0.9s ease both;
-      }
-
-      .trace-percent {
-        width: 100%;
-        margin-top: 0.34rem;
-        color: #68635d;
-        font-size: 0.54rem;
-        letter-spacing: -0.02em;
-      }
-
-      .avatar-card.trace-level-0 {
-        background: rgba(232, 228, 218, 0.024);
-      }
-
-      .avatar-card.trace-level-1 {
-        background: rgba(232, 228, 218, 0.038);
-      }
-
-      .avatar-card.trace-level-2 {
-        border-color: rgba(213, 209, 198, 0.16);
-        background: rgba(232, 228, 218, 0.052);
-      }
-
-      .avatar-card.trace-level-3 {
-        border-color: rgba(226, 220, 207, 0.36);
-        background: rgba(232, 228, 218, 0.105);
-        box-shadow: inset 0 0 0 1px rgba(169, 91, 83, 0.12);
-      }
-
-      .erased {
-        color: #a8a29a;
-        text-decoration: line-through;
-        text-decoration-color: rgba(169, 91, 83, 0.58);
-        filter: blur(0.18px);
-        opacity: 0.72;
-      }
-
-      .load-more-row {
-        display: flex;
-        justify-content: center;
-        padding: 2rem 0 0;
-      }
-
-      .load-more {
-        min-width: 12rem;
-        padding: 0.82rem 1.2rem;
-        border: 1px solid rgba(215, 210, 198, 0.22);
-        border-radius: 0.3rem;
-        color: #d9d4ca;
-        background: rgba(232, 228, 218, 0.035);
-        cursor: pointer;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
-
-      .load-more:hover,
-      .load-more:focus-visible {
-        border-color: rgba(221, 216, 205, 0.34);
-        background: rgba(232, 228, 218, 0.06);
-        outline: none;
-      }
-
-      .modal-backdrop {
+      .modal {
         position: fixed;
         inset: 0;
-        z-index: 50;
+        z-index: 10;
         display: grid;
         place-items: center;
         padding: 1rem;
-        background: rgba(0, 0, 0, 0.72);
-        backdrop-filter: blur(3px);
+        background: rgba(0, 0, 0, 0.83);
+        backdrop-filter: blur(5px);
       }
 
-      .modal-backdrop[hidden] {
+      .modal[hidden] {
         display: none;
       }
 
-      .profile-panel {
-        position: relative;
+      .profile-modal {
         width: min(760px, 100%);
-        max-height: min(91vh, 900px);
+        max-height: min(88vh, 900px);
         overflow: auto;
-        border: 1px solid rgba(235, 230, 218, 0.38);
-        border-radius: 0.75rem;
-        color: #2d2d2b;
-        background: #ebe7de;
-        box-shadow: 0 18px 70px rgba(0, 0, 0, 0.62);
+        border: 1px solid rgba(231, 227, 220, 0.2);
+        border-radius: 0.45rem;
+        background: #050504;
+        box-shadow: 0 2rem 7rem rgba(0, 0, 0, 0.9);
       }
 
-      .close-button {
-        position: absolute;
-        top: 0.8rem;
-        right: 0.9rem;
-        z-index: 3;
-        width: 2.1rem;
-        height: 2.1rem;
-        border: 1px solid rgba(65, 61, 55, 0.18);
-        border-radius: 50%;
-        color: #4e4b46;
-        background: rgba(239, 236, 228, 0.82);
-        cursor: pointer;
-      }
-
-      .blank-banner {
+      .modal-topline {
         display: flex;
-        height: 9.4rem;
-        align-items: end;
-        padding: 1rem 1.35rem;
-        border-bottom: 1px solid rgba(51, 49, 45, 0.08);
-        color: #9c978e;
-        background:
-          linear-gradient(90deg, rgba(177, 172, 163, 0.14) 0 1px, transparent 1px 100%),
-          #d5d1c8;
-        background-size: 3.5rem 100%;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.7rem;
-      }
-
-      .profile-header {
-        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 1rem;
-        align-items: end;
-        padding: 0 1.35rem 1.05rem;
-        margin-top: -3.1rem;
-      }
-
-      .eyebrow {
-        margin: 0 0 0.35rem;
-        color: #8c867d;
-        font-size: 0.66rem;
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid rgba(231, 227, 220, 0.12);
+        color: #817a70;
+        font-size: 0.72rem;
         letter-spacing: 0.16em;
         text-transform: uppercase;
       }
 
-      .profile-header h2 {
-        max-width: 28rem;
-        margin: 0;
-        overflow: hidden;
-        color: #302f2c;
-        font-size: clamp(1.35rem, 4vw, 2rem);
-        font-weight: 420;
-        letter-spacing: -0.05em;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .profile-number {
-        margin: 0.35rem 0 0;
-        color: #777168;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.74rem;
-      }
-
-      .profile-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 0;
-        margin: 0 1.35rem 1rem;
-        padding: 0.85rem 0;
-        border-top: 1px solid rgba(56, 53, 48, 0.1);
-        border-bottom: 1px solid rgba(56, 53, 48, 0.1);
-      }
-
-      .profile-stats div {
-        display: grid;
-        gap: 0.2rem;
-        padding: 0.2rem 0.7rem;
-        text-align: center;
-      }
-
-      .profile-stats div + div {
-        border-left: 1px solid rgba(56, 53, 48, 0.1);
-      }
-
-      .profile-stats span {
-        color: #33312e;
-        font-size: 1.14rem;
-      }
-
-      .profile-stats small {
-        color: #8b857b;
-        font-size: 0.64rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .empty-profile-state {
-        display: grid;
-        min-height: 15rem;
-        place-items: center;
-        margin: 0 1.35rem 1rem;
-        border: 1px solid rgba(60, 57, 52, 0.08);
-        border-radius: 0.45rem;
-        background: #f2eee6;
-      }
-
-      .warning-row {
-        display: grid;
-        max-width: 24rem;
-        justify-items: center;
-        gap: 0.75rem;
-        padding: 2rem 1rem;
-        text-align: center;
-      }
-
-      .warning-row strong {
-        display: grid;
-        width: 2.5rem;
-        height: 2.5rem;
-        place-items: center;
-        border: 1px solid rgba(169, 68, 60, 0.42);
+      .close {
+        width: 2.1rem;
+        height: 2.1rem;
+        border: 1px solid rgba(231, 227, 220, 0.16);
         border-radius: 50%;
-        color: #a9443c;
-        background: rgba(169, 68, 60, 0.06);
-        font-size: 1.25rem;
+        color: #cfc8bc;
+        background: rgba(255, 255, 255, 0.03);
+        cursor: pointer;
       }
 
-      .warning-row p {
-        margin: 0;
-        color: #6b514d;
-        line-height: 1.45;
-      }
-
-      .warning-title {
-        display: block;
-        margin-bottom: 0.25rem;
-        color: #3d3b37;
-        font-weight: 600;
-      }
-
-
-
-      .fragment-list {
-        margin: 0 1.35rem 1rem;
-        padding: 1rem;
-        border: 1px solid rgba(60, 57, 52, 0.08);
-        border-radius: 0.45rem;
-        background: #f0ece4;
-      }
-
-      .fragment-list h3 {
-        margin: 0 0 0.7rem;
-        color: #4a4742;
-        font-size: 0.82rem;
-        font-weight: 520;
-      }
-
-      .fragment-list ul {
-        display: grid;
-        gap: 0.42rem;
-        margin: 0;
-        padding-left: 1.1rem;
-        color: #6b665f;
-        font-size: 0.78rem;
-      }
-
-      .past-action-line {
-        margin: 0 0 0.85rem;
-        color: #7d5c56;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.7rem;
-      }
-
-      .shared-surface {
-        margin: 0 1.35rem 1rem;
-        padding: 1rem;
-        border: 1px solid rgba(60, 57, 52, 0.08);
-        border-radius: 0.45rem;
-        background: #eee9df;
-      }
-
-      .shared-surface h3 {
-        margin: 0 0 0.7rem;
-        color: #4a4742;
-        font-size: 0.82rem;
-        font-weight: 520;
-      }
-
-      .shared-surface ul {
-        display: grid;
-        gap: 0.42rem;
-        margin: 0;
-        padding-left: 1.1rem;
-        color: #7d5c56;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.68rem;
-      }
-
-
-
-      .report-history {
-        margin: 0 1.35rem 1rem;
-        padding: 1rem;
-        border: 1px solid rgba(60, 57, 52, 0.08);
-        border-radius: 0.45rem;
-        background: #f3eee5;
-      }
-
-      .report-history h3 {
-        margin: 0 0 0.7rem;
-        color: #7d5c56;
-        font-size: 0.78rem;
-        font-weight: 520;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .report-history ul {
-        display: grid;
-        gap: 0.42rem;
-        margin: 0;
-        padding-left: 1.1rem;
-        color: #6b665f;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.68rem;
-      }
-
-      .trace-field {
-        display: grid;
-        grid-template-columns: repeat(6, minmax(2rem, 1fr));
-        gap: 0.45rem;
-        padding: 0 1.35rem 1rem;
-      }
-
-      .trace-point {
-        position: relative;
-        display: grid;
-        min-height: 2.35rem;
-        place-items: center;
-        border: 1px dashed rgba(84, 79, 71, 0.16);
-        border-radius: 0.35rem;
-        background: rgba(255, 255, 255, 0.28);
+      .close:hover,
+      .close:focus-visible {
+        border-color: rgba(231, 227, 220, 0.35);
         outline: none;
       }
 
-      .trace-point::before {
-        width: 0.28rem;
-        height: 0.28rem;
-        border-radius: 50%;
-        background: #9d968c;
-        opacity: 0.62;
-        content: "";
+      .profile-body {
+        padding: clamp(1rem, 3vw, 2rem);
       }
 
-      .trace-copy {
-        position: absolute;
-        bottom: 124%;
-        left: 50%;
-        z-index: 5;
-        width: max-content;
-        max-width: min(18rem, 78vw);
-        padding: 0.42rem 0.54rem;
-        border: 1px solid rgba(84, 79, 71, 0.13);
-        border-radius: 0.3rem;
-        color: #4c4944;
-        background: rgba(247, 244, 237, 0.96);
-        box-shadow: 0 8px 18px rgba(36, 33, 28, 0.12);
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.68rem;
-        opacity: 0;
-        pointer-events: none;
-        transform: translate(-50%, 0.25rem);
+      .profile-head {
+        display: flex;
+        align-items: center;
+        gap: clamp(1rem, 4vw, 2rem);
+        min-height: 16rem;
+        padding-bottom: 1.25rem;
       }
 
-      .trace-point:hover .trace-copy,
-      .trace-point:focus .trace-copy {
-        animation: traceBrief 1.65s ease both;
-      }
-
-      .garbled-area {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 0.5rem;
-        padding: 0 1.35rem 1rem;
-      }
-
-      .garbled-area p {
+      .profile-title h2 {
         margin: 0;
-        padding: 0.65rem 0.75rem;
-        border: 1px solid rgba(60, 57, 52, 0.07);
-        border-radius: 0.35rem;
-        color: #9b958b;
-        background: #eeeae1;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.68rem;
+        overflow-wrap: anywhere;
+        color: #f0ece4;
+        font-size: clamp(1.75rem, 5vw, 3.35rem);
+        font-weight: 320;
+        letter-spacing: -0.045em;
       }
 
-      .missing-grid {
+      .unavailable {
+        margin: 0.7rem 0 0;
+        color: #9e978c;
+        font-size: 0.95rem;
+      }
+
+      .stats {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.7rem;
-        padding: 0 1.35rem 1.35rem;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+        margin: 0 0 2.1rem;
       }
 
-      .broken-block {
-        position: relative;
-        display: grid;
-        gap: 0.65rem;
-        min-height: 10.5rem;
-        padding: 0.75rem;
-        border: 1px solid rgba(60, 57, 52, 0.08);
-        border-radius: 0.35rem;
-        background: #f4f1ea;
+      .stats div {
+        min-height: 5rem;
+        padding: 0.9rem;
+        border: 1px solid rgba(231, 227, 220, 0.105);
+        background: rgba(255, 255, 255, 0.027);
       }
 
-
-
-      .residue-copy {
-        position: absolute;
-        top: 1.2rem;
-        right: 0.95rem;
-        left: 0.95rem;
-        z-index: 2;
-        display: grid;
-        min-height: 4.8rem;
-        place-items: center;
-        color: #8b5c57;
-        background: rgba(244, 240, 231, 0.86);
-        border: 1px solid rgba(139, 92, 87, 0.12);
-        border-radius: 0.25rem;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.66rem;
-        line-height: 1.35;
-        text-align: center;
-        opacity: 0;
-        pointer-events: none;
-      }
-
-      .broken-block:hover .residue-copy,
-      .broken-block:focus .residue-copy {
-        animation: residueFlash 0.8s ease both;
-      }
-
-      .broken-block:hover .broken-image,
-      .broken-block:focus .broken-image {
-        animation: imageResidue 0.8s ease both;
-      }
-
-      .broken-block.wide {
-        grid-column: span 2;
-      }
-
-      .broken-block.no-image .broken-image {
-        min-height: 2.1rem;
-        background: #e8e2d6;
-      }
-
-      .broken-block.no-image .broken-image::after {
-        width: 56%;
-        height: 0.45rem;
-        border: 0;
-        border-radius: 999px;
-        background: rgba(121, 115, 106, 0.13);
-      }
-
-      .broken-image {
-        display: grid;
-        min-height: 6.4rem;
-        place-items: center;
-        border-radius: 0.25rem;
-        background:
-          linear-gradient(135deg, transparent 49%, rgba(120, 113, 103, 0.22) 50%, transparent 51%),
-          #ded9cf;
-      }
-
-      .broken-image::after {
-        width: 1.45rem;
-        height: 1.45rem;
-        border: 1px solid rgba(91, 86, 78, 0.24);
-        border-radius: 0.2rem;
-        content: "";
-      }
-
-      .missing-lines {
-        display: grid;
-        align-content: center;
-        gap: 0.45rem;
-      }
-
-      .missing-lines i {
+      .stats strong {
         display: block;
-        height: 0.45rem;
-        border-radius: 999px;
-        background: rgba(121, 115, 106, 0.15);
+        color: #eee9df;
+        font-size: clamp(1.2rem, 3vw, 1.85rem);
+        font-weight: 330;
       }
 
-      .missing-lines i:nth-child(2) {
-        width: 62%;
+      .stats span {
+        display: block;
+        margin-top: 0.24rem;
+        color: #6f695f;
+        font-size: 0.72rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
       }
 
-      .missing-lines small {
-        color: #837d73;
-        font-family: "SFMono-Regular", Consolas, monospace;
-        font-size: 0.64rem;
+      .notice,
+      .before {
+        margin-top: 1rem;
+        padding: clamp(1rem, 2.4vw, 1.4rem);
+        border: 1px solid rgba(231, 227, 220, 0.13);
+        background: rgba(255, 255, 255, 0.028);
       }
 
-      @keyframes cardFadeIn {
+      .notice h3,
+      .before h3 {
+        margin: 0 0 0.9rem;
+        color: #e8e2d7;
+        font-size: 1rem;
+        font-weight: 520;
+      }
+
+      .notice p {
+        margin: 0.55rem 0 0;
+        color: #aaa298;
+        line-height: 1.65;
+      }
+
+      .reason-label {
+        color: #6e675e;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .before ul {
+        display: grid;
+        gap: 0.72rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .before li {
+        color: #c7c0b5;
+        line-height: 1.55;
+      }
+
+      .before li::before {
+        color: #696258;
+        content: "• ";
+      }
+
+      .empty-space {
+        height: clamp(7rem, 19vh, 13rem);
+        border-bottom: 1px solid rgba(231, 227, 220, 0.07);
+      }
+
+      .afterword {
+        margin: 5rem auto 0;
+        color: #514c45;
+        font-size: 0.9rem;
+        text-align: center;
+      }
+
+      @keyframes arrive {
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
 
-      @keyframes traceBrief {
-        0% {
-          opacity: 0;
-          transform: translate(-50%, 0.25rem);
-        }
-        16%,
-        54% {
-          opacity: 0.94;
-          transform: translate(-50%, 0);
-        }
-        100% {
-          opacity: 0;
-          transform: translate(-50%, -0.08rem);
-        }
-      }
-
-      @keyframes residueFlash {
-        0%,
-        100% {
-          opacity: 0;
-          filter: blur(1px);
-        }
-        18%,
-        62% {
-          opacity: 0.95;
-          filter: blur(0);
-        }
-      }
-
-      @keyframes imageResidue {
-        0%,
-        100% {
-          background:
-            linear-gradient(135deg, transparent 49%, rgba(120, 113, 103, 0.22) 50%, transparent 51%),
-            #ded9cf;
-        }
-        24%,
-        58% {
-          background:
-            linear-gradient(135deg, transparent 49%, rgba(169, 91, 83, 0.22) 50%, transparent 51%),
-            #e9e3d7;
-        }
-      }
-
-      @keyframes onePixelShift {
-        0%,
-        100% {
-          transform: translateX(0);
-        }
-        44% {
-          transform: translateX(1px);
-        }
-        56% {
-          transform: translateX(-1px);
-        }
-      }
-
-      @keyframes ghostPass {
-        0%,
-        100% {
-          opacity: 0.12;
-          filter: blur(2px);
-        }
-        40%,
-        62% {
-          opacity: 0.48;
-          filter: blur(0.4px);
-        }
-      }
-
-      @media (max-width: 760px) {
-        .avatar-grid {
-          grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+      @media (max-width: 640px) {
+        .page {
+          min-height: 160vh;
         }
 
-        .archive-count {
+        .archive-bar {
           align-items: start;
           flex-direction: column;
         }
 
-        .profile-header {
-          align-items: center;
+        .profile-grid {
+          grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
         }
 
-        .trace-field {
-          grid-template-columns: repeat(3, minmax(2rem, 1fr));
+        .profile-head {
+          align-items: start;
+          flex-direction: column;
         }
 
-        .garbled-area,
-        .missing-grid,
-        .profile-stats {
+        .stats {
           grid-template-columns: 1fr;
         }
-
-        .broken-block.wide {
-          grid-column: auto;
-        }
       }
-
-      @media (max-width: 480px) {
-        .page-shell {
-          padding-inline: 0.55rem;
-        }
-
-        .avatar-grid {
-          grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
-          gap: 0.35rem;
-        }
-
-        .avatar-card {
-          min-height: 8.5rem;
-          padding-inline: 0.25rem;
-        }
-
-        .avatar {
-          width: 4.3rem;
-          height: 4.3rem;
-        }
-
-        .avatar.large {
-          width: 7.4rem;
-          height: 7.4rem;
-        }
-
-        .profile-header,
-        .trace-field,
-        .garbled-area,
-        .missing-grid {
-          padding-inline: 1rem;
-        }
-
-        .profile-stats,
-        .empty-profile-state,
-        .fragment-list {
-          margin-inline: 1rem;
-        }
-      }
-        </style>
+    </style>
   </head>
   <body>
-    <main class="page-shell">
+    <main class="page">
       <section class="intro" aria-labelledby="page-title">
-        <p class="surface-label">shared surface / residual actions</p>
-        <h1 id="page-title">Someone was here.</h1>
-        <p class="subtitle">Only partial traces remain on the surface.</p>
+        <div class="intro-inner">
+          <p class="label">unavailable account platform</p>
+          <h1 id="page-title">Someone was here.</h1>
+          <p class="subtitle">
+            People are gone. Accounts are gone. Most content disappeared. The interface kept what it could not understand.
+          </p>
+        </div>
       </section>
 
-      <section class="archive-count" aria-live="polite">
-        <span>100 traces on a shared surface</span>
-        <em id="visible-count">100 currently visible</em>
+      <section class="archive-bar" aria-label="archive status">
+        <p>100 unavailable profiles</p>
+        <span>click a remaining surface</span>
       </section>
 
-      <section class="avatar-grid" id="avatar-grid" aria-label="Unavailable account avatar grid"></section>
+      <section id="profile-grid" class="profile-grid" aria-label="unavailable profiles"></section>
 
-      <div class="load-more-row">
-        <button class="load-more" id="load-more" type="button">load more traces</button>
-      </div>
+      <p class="afterword">There is not enough left to prove anything. There is enough left to keep looking.</p>
     </main>
 
-    <div class="modal-backdrop" id="modal" hidden>
-      <aside class="profile-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
-        <button class="close-button" id="close-modal" type="button" aria-label="Close incomplete profile">×</button>
-        <div id="modal-content"></div>
-      </aside>
+    <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <article class="profile-modal">
+        <div class="modal-topline">
+          <span>profile surface</span>
+          <button id="close-modal" class="close" type="button" aria-label="Close profile">×</button>
+        </div>
+        <div id="modal-content" class="profile-body"></div>
+      </article>
     </div>
 
     <script>
-      const ACCOUNT_COUNT = 100;
-      const INITIAL_VISIBLE = 100;
-      const LOAD_STEP = 100;
-
-      const ambiguousReasons = [
-        'content unavailable under community guidelines',
-        'removed after repeated reports',
-        'restricted following abnormal activity',
-        'previous posts cannot be reconstructed',
-        'cached relations remain',
-        'content visibility limited',
-        'historical activity archived',
-        'interaction history partially retained',
-        'surface activity no longer accessible',
+      const ids = [
+        '7842051936', '5301178422', '9057712468', '2486095713', '7714308625', '3869257401', '6198703428', '1428956703',
+        '9574026811', '8031654927', '2759186043', '6914372058', '4186209735', '7365091842', '5902748163', '8246713905',
+        '1039587264', '6472805913', '9825164703', '3647159028', '7195038642', '4501986273', '2368097451', '8752416039',
+        '6029371845', '1947863250', '7381502694', '5693840172', '4279156038', '9160437528', '3506829714', '8619274053',
+        '2097461385', '6741398520', '9852074163', '5138629470', '7904516283', '3286075194', '8462159073', '1579306842',
+        '6925804173', '4057269183', '9716382540', '2841509367', '7394816250', '5169073824', '8024167593', '3607951284',
+        '9482736105', '6710249385', '2948350716', '8306574129', '1769428503', '5893172640', '7152609384', '4309862175',
+        '9673180524', '2516408973', '6084723195', '8439051726', '3927180645', '7562049183', '1205983746', '6819735204',
+        '9471056382', '5348720619', '2186409573', '7902364815', '4691857302', '8250371649', '3049761825', '9586210743',
+        '6174928503', '2738059614', '8406193275', '5067281943', '1394726085', '7820634195', '6259143708', '4917806253',
+        '9305162847', '2574018936', '6842059713', '1028675934', '7463910582', '5802197436', '9157403268', '3479281056',
+        '8625147903', '4386792510', '7093158642', '1960482735', '5249706813', '8732614095', '3159067428', '6405829173',
+        '9874302156', '2685917403', '7518064293', '4930278615'
       ];
 
-      const statuses = ['silent', 'reset', 'hidden', 'cached', 'unreadable'];
-      const pastActions = [
-        'replied to a deleted post',
-        'changed avatar',
-        'sent a comment',
-        'liked hidden content',
-        'followed another missing profile',
-        'posted an image',
-        'replied before deletion',
-        'shared a post',
-        'edited signature',
-        'was mentioned by someone else',
+      const rareClues = [
+        'still followed by 83 users', 'saved by 42 users after removal', 'mentioned in another unavailable profile',
+        'appears in archived reply chains', 'linked from removed content', 'one reply remains',
+        'profile viewed after disappearance', 'cached activity still detected'
       ];
-      const remainingTraces = [
-        'one reply remains',
-        'old avatar reset',
-        'liked hidden content',
-        'reply chain interrupted',
-        'saved by 42 users',
-        'old signature: “don’t wai...”',
-        'follow relation remains',
-        'mentioned elsewhere',
-        'old nickname: “_xiaoyu”',
-        'appears in broken links',
-      ];
-      const oldSignatures = [
-        'back later',
-        'not explaining',
-        'don’t wait',
-        'temporary',
-        'leave it here',
-        'not deleted yet',
-        'just recording',
-        'nothing to say',
-      ];
-      const commentFragments = [
-        'I just wanted to say…',
-        'why did…',
-        'before it disappeared…',
-        'don’t repost…',
-        'I saw it before…',
-        'this was still here…',
-        'someone saved it…',
-        'it was visible yesterday…',
-      ];
-      const oldNicknames = [
-        'momo_',
-        'visitor_',
-        'blue_',
-        'still_',
-        'lost_user_',
-        'archive_',
-        'r3m_',
-      ];
-      const residueFragments = [
-        'I was just…',
-        'last reply: 03:17',
-        'old signature: not explaining',
-        'image loaded once',
-        'liked by 216,303 before removal',
-        'one reply remained',
-        'someone saved this before it disappeared',
-        'mentioned in another broken profile',
-        'the post is gone, but the relation remains',
-      ];
-      const sharedSurfaceTraces = [
-        '3 users still follow this unavailable account',
-        'one reply remains but the original post is gone',
-        'saved by 42 users',
-        'mentioned in another deleted profile',
-        'appears in 12 broken links',
+
+      const moderationReasons = {
+        argumentConflict: [
+          'reported after repeated arguments',
+          'discussion escalated repeatedly',
+          'conversation chain interrupted after reports',
+          'multiple users reported hostile interactions',
+          'removed following repeated disputes',
+          'interaction history received unusual reports',
+          'reported after escalating exchanges',
+          'community moderation triggered after repeated conflicts'
+        ],
+        contentVideo: [
+          'video removed for misleading edits',
+          'content restricted after repeated reposts',
+          'media record violated originality guidelines',
+          'video removed following authenticity review',
+          'content archived after policy review',
+          'upload history partially restricted',
+          'repeated uploads failed moderation checks',
+          'media visibility limited under content policy'
+        ],
+        advertisingSpam: [
+          'account flagged for repetitive promotional activity',
+          'content removed for excessive commercial posting',
+          'promotional material exceeded platform limits',
+          'repeated advertising behaviour detected',
+          'account visibility reduced after spam reports',
+          'external redirection activity triggered moderation',
+          'posting behaviour matched promotional patterns'
+        ],
+        communityGuidelines: [
+          'content visibility restricted under community values policy',
+          'account activity conflicted with platform guidelines',
+          'repeated content triggered community concern',
+          'interaction pattern reviewed following user complaints',
+          'content archived after moderation review',
+          'account received multiple value-related reports',
+          'activity visibility reduced after platform review'
+        ],
+        accountActivity: [
+          'profile activity pattern appeared abnormal',
+          'account reset following unusual activity',
+          'interaction history could not be reconstructed',
+          'activity archive remains incomplete',
+          'profile history partially retained',
+          'account activity entered review status',
+          'moderation review interrupted content visibility'
+        ]
+      };
+
+      const reasons = Object.values(moderationReasons).flat();
+
+      const tracePool = [
+        'still followed by 83 users',
+        'saved by 42 users after removal',
+        'mentioned in another unavailable profile',
+        'appears in archived reply chains',
         'linked from removed content',
+        'one reply remains',
+        'profile viewed after disappearance',
+        'cached activity still detected',
+        'old bio: “not deleting this”',
+        'previous name: xiao_sleep',
+        '“why did you suddenly—”',
+        'comment chain interrupted',
+        'old bio: “back soon maybe”',
+        'previous name: last_seen_04',
+        'follow request still pending',
+        'previous name: dear_static',
+        '“you promised you would—”',
+        'profile mention has no destination',
+        'old bio: “tell them I tried”',
+        'previous name: roomtone'
       ];
-      const memoryFlashes = [
-        'why did…',
-        'I was going…',
-        'before it dis…',
-        "please don't…",
-        'image loaded once',
-        'saved by 42',
-        'this was still here…',
-        'don’t repost…',
-      ];
-      const communityReports = [
-        'reported by 23 users',
-        'multiple users marked content disturbing',
-        'reported repeatedly within 48 hours',
-        'users requested removal',
-        'community moderation triggered',
-        'reported as misleading',
-        'hidden following user complaints',
-        'interaction received unusual reports',
-      ];
-      const laterViewerTraces = [
-        '247 users viewed after removal',
-        '13 users opened remaining traces',
-        '4 users saved fragments',
-        'someone searched this account yesterday',
-      ];
-      const garbledLines = ['profile image failed to load', 'signature removed', 'last active 247 days ago', 'relation still cached', 'one reply remains', 'saved by 42 users'];
-      const nicknameAvatarIndexes = new Set([1, 4, 58, 85]);
-      const imageTraceIndexes = new Set([4, 22, 58, 85, 91]);
 
-      const grid = document.getElementById('avatar-grid');
-      const visibleCount = document.getElementById('visible-count');
-      const loadMoreButton = document.getElementById('load-more');
-      const modal = document.getElementById('modal');
-      const modalContent = document.getElementById('modal-content');
-      const closeModalButton = document.getElementById('close-modal');
-      let visible = INITIAL_VISIBLE;
-      let lastFocusedCard = null;
+      const avatarKinds = ['default', 'void', 'reset', 'broken'];
 
-      function seededRandom(seed) {
-        const x = Math.sin(seed * 999.91) * 10000;
-        return x - Math.floor(x);
-      }
+      const profiles = ids.map((id, index) => {
+        const trace = 3 + ((index * 17 + Number(id.slice(-2))) % 32);
+        const rare = index % 9 === 2 || index % 13 === 7 ? rareClues[(index * 5) % rareClues.length] : '';
+        return {
+          id,
+          trace,
+          rare,
+          avatar: avatarKinds[(index + Number(id[0])) % avatarKinds.length],
+          followers: 12 + ((Number(id.slice(0, 5)) * 37) % 84210),
+          following: 1 + ((Number(id.slice(3, 8)) * 19) % 1890),
+          likes: ((Number(id.slice(5)) * 23) % 492000),
+          reason: reasons[(index * 3 + Number(id[9])) % reasons.length],
+          traces: Array.from({ length: 3 + (index % 2) }, (_, offset) => tracePool[(index * 4 + offset * 7) % tracePool.length])
+        };
+      });
 
-      function randomInt(seed, min, max) {
-        return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
-      }
+      const grid = document.querySelector('#profile-grid');
+      const modal = document.querySelector('#modal');
+      const modalContent = document.querySelector('#modal-content');
+      const closeButton = document.querySelector('#close-modal');
+      let lastFocused = null;
 
-      function buildTraceLevels() {
-        const levels = Array(ACCOUNT_COUNT).fill(0);
-        const rankedIndexes = Array.from({ length: ACCOUNT_COUNT }, (_, index) => index)
-          .sort((a, b) => seededRandom(a + 707) - seededRandom(b + 707));
-        rankedIndexes.slice(60, 85).forEach((index) => { levels[index] = 1; });
-        rankedIndexes.slice(85, 95).forEach((index) => { levels[index] = 2; });
-        rankedIndexes.slice(95, 100).forEach((index) => { levels[index] = 3; });
-        return levels;
-      }
-
-      const traceLevels = buildTraceLevels();
-
-      function tracePercentForLevel(level, index) {
-        if (level === 0) return randomInt(index + 127, 2, 6);
-        if (level === 1) return randomInt(index + 127, 16, 29);
-        if (level === 2) return randomInt(index + 127, 45, 62);
-        return randomInt(index + 127, 84, 94);
-      }
-
-      function avatarForAccount(index, traceLevel) {
-        if (nicknameAvatarIndexes.has(index)) return index % 2 === 0 ? 'old' : 'cached';
-        if (traceLevel === 0) return index % 12 === 0 ? 'blank' : 'silhouette';
-        if (traceLevel === 1) return index % 9 === 0 ? 'reset' : 'silhouette';
-        if (traceLevel === 2) return imageTraceIndexes.has(index) ? 'failed' : ['silhouette', 'blank', 'half'][index % 3];
-        return ['partial', 'double', 'ghost', 'failed', 'old'][index % 5];
-      }
-
-      function pickMany(list, index, count) {
-        return Array.from({ length: count }, (_, offset) => list[(index + offset * 3) % list.length]);
-      }
-
-      function buildAccounts() {
-        return Array.from({ length: ACCOUNT_COUNT }, (_, index) => {
-          const userId = String(randomInt(index + 11, 1000000000, 9999999999));
-          const traceLevel = traceLevels[index];
-          const followers = randomInt(index + 31, 0, 98000);
-          const following = randomInt(index + 47, 0, 1200);
-          const likes = randomInt(index + 63, 0, 240000);
-          const hiddenPosts = randomInt(index + 95, 0, 47);
-          const oldSignature = oldSignatures[index % oldSignatures.length];
-          const commentFragment = commentFragments[index % commentFragments.length];
-          const oldNickname = oldNicknames[index % oldNicknames.length];
-          const hasImageTrace = imageTraceIndexes.has(index);
-          return {
-            userId,
-            status: statuses[index % statuses.length],
-            followers,
-            following,
-            likes,
-            lastActive: randomInt(index + 79, 4, 1300),
-            hiddenPosts,
-            traceLevel,
-            tracePercent: tracePercentForLevel(traceLevel, index),
-            pastAction: pastActions[index % pastActions.length],
-            remainingTrace: remainingTraces[index % remainingTraces.length],
-            ambiguousReason: ambiguousReasons[index % ambiguousReasons.length],
-            sharedTrace: sharedSurfaceTraces[index % sharedSurfaceTraces.length],
-            sharedTraces: pickMany(sharedSurfaceTraces, index, 4),
-            reportTraces: pickMany(communityReports, index, 3),
-            laterTraces: pickMany(laterViewerTraces, index, 4),
-            strongResidues: [
-              nicknameAvatarIndexes.has(index) ? `old name: ${oldNickname}` : `reply: ${commentFragment}`,
-              `old signature: ${oldSignature}`,
-              hasImageTrace ? 'image failed' : 'saved by 42',
-              index % 2 === 0 ? 'mentioned elsewhere' : 'one reply remains',
-            ],
-            memoryFlash: hasImageTrace ? 'image loaded once' : (nicknameAvatarIndexes.has(index) ? oldNickname : memoryFlashes[index % memoryFlashes.length]),
-            avatar: avatarForAccount(index, traceLevel),
-            residue: residueFragments[index % residueFragments.length],
-            oldSignature,
-            commentFragment,
-            oldNickname,
-            hasImageTrace,
-            damaged: index % 6 === 0 || index % 19 === 0,
-          };
-        });
-      }
-
-      const accounts = buildAccounts();
-
-      function avatarMarkup(type, large = false) {
-        const classes = ['avatar', type, large ? 'large' : ''].filter(Boolean).join(' ');
-        const silhouette = `
-          <svg viewBox="0 0 80 80" aria-hidden="true">
-            <circle cx="40" cy="29" r="13"></circle>
-            <path d="M17 68c3.5-16 14.5-25 23-25s19.5 9 23 25"></path>
-          </svg>`;
-        return `<div class="${classes}" aria-hidden="true">${type === 'silhouette' ? silhouette : ''}</div>`;
-      }
-
-      function cardMarkup(account, index) {
-        const erased = account.damaged ? 'erased' : '';
-        const visibleId = `User_${String(index + 1).padStart(3, '0')}`;
-        const smallRemainOptions = [
-          `${account.likes.toLocaleString()} likes remain`,
-          `${account.followers.toLocaleString()} followers remain`,
-          account.sharedTrace,
-        ];
-        const partialOptions = [
-          account.remainingTrace,
-          `saved by ${Math.max(42, Math.round(account.following / 8))} users`,
-          'one reply remains',
-          `old signature: “${account.oldSignature.slice(0, 9)}...”`,
-          'mentioned elsewhere',
-          'liked hidden content',
-          'reply chain interrupted',
-          `old nickname: “${account.oldNickname}”`,
-        ];
-        const dataLine = account.traceLevel >= 1 ? `<span class="card-data">${smallRemainOptions[index % smallRemainOptions.length]}</span>` : '';
-        const traceLine = account.traceLevel >= 2 ? `<span class="card-trace">${partialOptions[index % partialOptions.length]}</span>` : '';
-        const actionLine = account.traceLevel === 3 ? `<span class="card-action">once ${account.pastAction}</span>` : '';
-        const strongLine = account.traceLevel === 3
-          ? `<span class="strong-thumb" aria-hidden="true"></span><span class="strong-fragments">${account.strongResidues.map((fragment) => `<span>${fragment}</span>`).join('')}</span>`
-          : '';
-        return `
-          <button class="avatar-card trace-level-${account.traceLevel}" type="button" data-index="${index}" style="animation-delay: ${(index % INITIAL_VISIBLE) * 18}ms" aria-label="Open remaining trace for ${visibleId}">
-            ${avatarMarkup(account.avatar)}
-            <span class="card-user ${erased}">${visibleId}</span>
-            ${dataLine}
-            ${traceLine}
-            ${actionLine}
-            ${strongLine}
-            <span class="trace-percent">surface trace: ${account.tracePercent}%</span>
-            <span class="card-memory">${account.memoryFlash}</span>
-          </button>`;
+      function avatarMarkup(kind, large = false) {
+        if (kind === 'default') {
+          return `
+            <div class="avatar${large ? ' large' : ''}" data-kind="default" aria-hidden="true">
+              <svg viewBox="0 0 100 100" role="img">
+                <circle cx="50" cy="34" r="18"></circle>
+                <path d="M18 86c5-24 22-35 32-35s27 11 32 35"></path>
+              </svg>
+            </div>`;
+        }
+        return `<div class="avatar${large ? ' large' : ''}" data-kind="${kind}" aria-hidden="true"></div>`;
       }
 
       function renderGrid() {
-        grid.innerHTML = accounts.slice(0, visible).map(cardMarkup).join('');
-        visibleCount.textContent = `${visible} currently visible`;
-        loadMoreButton.hidden = visible >= accounts.length;
+        grid.innerHTML = profiles.map((profile, index) => `
+          <button class="profile-card" type="button" data-index="${index}" style="animation-delay:${Math.min(index * 16, 900)}ms">
+            ${avatarMarkup(profile.avatar)}
+            <p class="profile-id">User_${profile.id}</p>
+            <p class="trace-percent">surface trace ${profile.trace}%</p>
+            ${profile.rare ? `<p class="rare-clue">${profile.rare}</p>` : '<p class="rare-clue" aria-hidden="true"></p>'}
+          </button>
+        `).join('');
       }
 
-      function brokenBlock(label, residue, wide = false, kind = 'text') {
-        return `
-          <div class="broken-block ${wide ? 'wide' : ''} ${kind === 'image' ? 'image-trace' : 'no-image'}" tabindex="0">
-            <div class="broken-image" aria-hidden="true"></div>
-            <div class="missing-lines">
-              <i></i>
-              <i></i>
-              <small>${label}</small>
-            </div>
-            <span class="residue-copy">${residue}</span>
-          </div>`;
-      }
-
-      function tracePoint(text) {
-        return `<span class="trace-point" tabindex="0"><span class="trace-copy">${text}</span></span>`;
-      }
-
-      function sharedSurfaceList(account) {
-        return `<section class="shared-surface" aria-label="shared surface traces">
-          <h3>Shared surface traces</h3>
-          <ul>${account.sharedTraces.map((trace) => `<li>${trace}</li>`).join('')}</ul>
-        </section>`;
-      }
-
-      function reportHistoryList(account) {
-        return `<section class="report-history" aria-label="report history and later viewers">
-          <h3>Report history</h3>
-          <ul>${account.reportTraces.concat(account.laterTraces).map((trace) => `<li>${trace}</li>`).join('')}</ul>
-        </section>`;
-      }
-
-      function profileFragments(account) {
-        const possible = [
-          `[deleted comment] “${account.commentFragment}”`,
-          `[old signature] “${account.oldSignature}”`,
-          `saved by ${Math.max(42, Math.round(account.following / 8))} users`,
-          account.remainingTrace,
-          account.sharedTrace,
-          `${communityReports[(Number(account.userId.slice(-2)) + 2) % communityReports.length]}`,
-          `${laterViewerTraces[Number(account.userId.slice(-1)) % laterViewerTraces.length]}`,
-          'liked content cannot be reconstructed',
-          'original post gone, one reply remains',
-          'old avatar reset',
-        ];
-        if (account.hasImageTrace) {
-          possible.splice(2, 0, `[failed image] liked by ${Math.max(216, account.likes).toLocaleString()}`);
-        }
-        return possible.slice(0, Math.min(5, 3 + account.traceLevel));
-      }
-
-      function traceBlocks(account) {
-        const blocks = [
-          { label: '[deleted comment]', residue: account.commentFragment },
-          { label: '[old signature]', residue: `old signature: ${account.oldSignature}` },
-          { label: 'remaining follower relation', residue: `${Math.max(3, account.followers % 80)} users still follow` },
-          { label: 'report history', residue: account.reportTraces[0] },
-          { label: 'broken mention', residue: 'mentioned in another deleted profile' },
-          { label: 'saved count', residue: `saved by ${Math.max(42, Math.round(account.following / 8))} users` },
-          { label: 'last active record', residue: `last active ${account.lastActive} days ago` },
-        ];
-        if (account.hasImageTrace) {
-          blocks.splice(1, 0, { label: '[failed image]', residue: 'image loaded once', kind: 'image' });
-        }
-        return blocks.slice(0, Math.min(5, 3 + account.traceLevel));
-      }
-
-      function openModal(account, trigger) {
-        lastFocusedCard = trigger;
-        const profileTraceTexts = [
-          `last active ${account.lastActive} days ago`,
-          `old signature: ${account.oldSignature}`,
-          account.commentFragment,
-          'one comment remains',
-          'follow relation remains',
-          'before it dis…',
-        ];
-        const fragments = profileFragments(account);
-        const blocks = traceBlocks(account);
-
+      function openProfile(profile, trigger) {
+        lastFocused = trigger;
         modalContent.innerHTML = `
-          <div class="blank-banner"><span>banner area / cached surface</span></div>
-          <header class="profile-header">
-            ${avatarMarkup(account.avatar, true)}
-            <div>
-              <p class="eyebrow">Surface fragment</p>
-              <h2 id="modal-title" class="${account.damaged ? 'erased' : ''}">User_${account.userId}</h2>
-              <p class="profile-number">user ID: ${account.userId}</p>
-              <p class="past-action-line">once ${account.pastAction}</p>
+          <header class="profile-head">
+            ${avatarMarkup(profile.avatar, true)}
+            <div class="profile-title">
+              <p class="eyebrow">unavailable profile</p>
+              <h2 id="modal-title">User_${profile.id}</h2>
+              <p class="unavailable">last visible surface trace: ${profile.trace}%</p>
             </div>
           </header>
-          <section class="profile-stats" aria-label="remaining profile counts">
-            <div><span>${account.followers.toLocaleString()}</span><small>followers</small></div>
-            <div><span>${account.following.toLocaleString()}</span><small>following</small></div>
-            <div><span>${account.likes.toLocaleString()}</span><small>likes</small></div>
-          </section>
-          <section class="empty-profile-state" aria-label="ambiguous surface state">
-            <div class="warning-row">
-              <strong aria-hidden="true">!</strong>
-              <p><span class="warning-title">Profile cannot be fully viewed</span>${account.ambiguousReason}</p>
-              <em>surface trace: ${account.tracePercent}%</em>
-            </div>
-          </section>
-          <section class="fragment-list" aria-label="surface fragments">
-            <h3>found in the surface:</h3>
-            <ul>${fragments.map((fragment) => `<li>${fragment}</li>`).join('')}</ul>
-          </section>
-          ${sharedSurfaceList(account)}
-          ${reportHistoryList(account)}
-          <section class="trace-field" aria-label="hover areas with temporary traces">
-            ${profileTraceTexts.map(tracePoint).join('')}
-          </section>
-          <section class="garbled-area" aria-label="damaged account text">
-            ${garbledLines.map((line) => `<p>${line}</p>`).join('')}
-          </section>
-          <section class="missing-grid" aria-label="missing profile contents">
-            ${blocks.map((block, blockIndex) => brokenBlock(block.label, block.residue, blockIndex === blocks.length - 1 && account.traceLevel === 3, block.kind)).join('')}
-          </section>`;
 
+          <section class="stats" aria-label="profile counts">
+            <div><strong>${profile.followers.toLocaleString()}</strong><span>followers</span></div>
+            <div><strong>${profile.following.toLocaleString()}</strong><span>following</span></div>
+            <div><strong>${profile.likes.toLocaleString()}</strong><span>likes</span></div>
+          </section>
+
+          <section class="notice" aria-label="unavailable notice">
+            <h3>⚠ This account is unavailable</h3>
+            <span class="reason-label">Reason:</span>
+            <p>${profile.reason}</p>
+          </section>
+
+          <div class="empty-space" aria-hidden="true"></div>
+
+          <section class="before" aria-label="before removal traces">
+            <h3>Before removal:</h3>
+            <ul>${profile.traces.map((trace) => `<li>${trace}</li>`).join('')}</ul>
+          </section>
+        `;
         modal.hidden = false;
         document.body.classList.add('modal-open');
-        closeModalButton.focus();
+        closeButton.focus();
       }
 
-      function closeModal() {
+      function closeProfile() {
         modal.hidden = true;
         document.body.classList.remove('modal-open');
-        if (lastFocusedCard) lastFocusedCard.focus();
+        if (lastFocused) lastFocused.focus();
       }
 
       grid.addEventListener('click', (event) => {
-        const card = event.target.closest('.avatar-card');
-        if (!card) return;
-        openModal(accounts[Number(card.dataset.index)], card);
+        const card = event.target.closest('.profile-card');
+        if (card) openProfile(profiles[Number(card.dataset.index)], card);
       });
 
-      loadMoreButton.addEventListener('click', () => {
-        visible = Math.min(visible + LOAD_STEP, accounts.length);
-        renderGrid();
-      });
-
-      closeModalButton.addEventListener('click', closeModal);
+      closeButton.addEventListener('click', closeProfile);
       modal.addEventListener('click', (event) => {
-        if (event.target === modal) closeModal();
+        if (event.target === modal) closeProfile();
       });
       document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && !modal.hidden) closeModal();
+        if (event.key === 'Escape' && !modal.hidden) closeProfile();
       });
 
       renderGrid();
