@@ -1165,39 +1165,38 @@
         'appears in broken links',
       ];
       const oldSignatures = [
-        '今天不想说话',
-        '不要再等了',
-        '只是记录一下',
-        '我会删掉',
-        '别问了',
-        '晚点回来',
-        '没什么好解释',
+        'back later',
+        'not explaining',
+        'don’t wait',
         'temporary',
+        'leave it here',
+        'not deleted yet',
+        'just recording',
+        'nothing to say',
       ];
       const commentFragments = [
-        '我只是想说……',
-        '为什么会这样',
-        '刚刚还在',
-        '别转发了',
-        '这条看不到了',
-        'before it disappeared',
-        '谁还记得',
-        '我看到过',
+        'I just wanted to say…',
+        'why did…',
+        'before it disappeared…',
+        'don’t repost…',
+        'I saw it before…',
+        'this was still here…',
+        'someone saved it…',
+        'it was visible yesterday…',
       ];
       const oldNicknames = [
-        '小雨_',
+        'momo_',
         'visitor_',
         'blue_',
-        'momo_',
-        '匿名用户_',
-        'r3m_',
         'still_',
-        'user_lost_',
+        'lost_user_',
+        'archive_',
+        'r3m_',
       ];
       const residueFragments = [
         'I was just…',
         'last reply: 03:17',
-        'old signature: 不想解释',
+        'old signature: not explaining',
         'image loaded once',
         'liked by 216,303 before removal',
         'one reply remained',
@@ -1220,8 +1219,8 @@
         "please don't…",
         'image loaded once',
         'saved by 42',
-        '刚刚还在',
-        '别转发了',
+        'this was still here…',
+        'don’t repost…',
       ];
       const communityReports = [
         'reported by 23 users',
@@ -1239,7 +1238,7 @@
         '4 users saved fragments',
         'someone searched this account yesterday',
       ];
-      const garbledLines = ['usr: //r3m_--nant', 'sig: ▒▒▒ removed', 'img_src: failed://null', 'last packet: 00:4f:__'];
+      const garbledLines = ['profile image failed to load', 'signature removed', 'last active 247 days ago', 'relation still cached', 'one reply remains', 'saved by 42 users'];
       const nicknameAvatarIndexes = new Set([1, 4, 58, 85]);
       const imageTraceIndexes = new Set([4, 22, 58, 85, 91]);
 
@@ -1492,7 +1491,7 @@
           <section class="empty-profile-state" aria-label="ambiguous surface state">
             <div class="warning-row">
               <strong aria-hidden="true">!</strong>
-              <p><span class="warning-title">Only the relations answer</span>${account.ambiguousReason}</p>
+              <p><span class="warning-title">Profile cannot be fully viewed</span>${account.ambiguousReason}</p>
               <em>surface trace: ${account.tracePercent}%</em>
             </div>
           </section>
